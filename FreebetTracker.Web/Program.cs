@@ -1,3 +1,4 @@
+using Azure.Data.Tables;
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Services;
 
@@ -6,6 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<IFreebetRepository, DemoFreebetRepository>();
+builder.Services.AddSingleton(sp =>
+{
+    var connectionString = builder.Configuration[
+        "AzureStorage:ConnectionString"]
+        ?? throw new InvalidOperationException("Azure Storage connection string is not configured.");
+
+    return new TableClient(connectionString, "Freebets");
+});
+
+builder.Services.AddSingleton<IFreebetRepository, FreebetTableRepository>();
 
 var app = builder.Build();
 

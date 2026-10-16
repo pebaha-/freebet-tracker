@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FreebetTracker.Tests/FreebetTracker.Tests.csproj" Id="3e6b8275-ca02-4c17-9bf6-905909fb0f1e" />
+  <Project Path="FreebetTracker.Web/FreebetTracker.Web.csproj" />
+</Solution>

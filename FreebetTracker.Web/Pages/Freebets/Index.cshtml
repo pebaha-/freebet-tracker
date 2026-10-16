@@ -1,0 +1,68 @@
+﻿@page
+@model FreebetTracker.Web.Pages.Freebets.IndexModel
+
+@{
+    ViewData["Title"] = "Freebets";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between
+                align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1">Freebets</h1>
+            <p class="text-body-secondary mb-0">
+                Oversigt over registrerede freebets
+            </p>
+        </div>
+
+        <span class="badge text-bg-primary">
+            @Model.Freebets.Count i alt
+        </span>
+    </div>
+
+    @if (Model.Freebets.Count == 0)
+    {
+        <div class="alert alert-info">
+            Der er ingen freebets at vise.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped
+                          table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Konto</th>
+                        <th scope="col">Spiller</th>
+                        <th scope="col" class="text-end">
+                            Værdi
+                        </th>
+                        <th scope="col">Udløbsdato</th>
+                        <th scope="col">Vilkår</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var freebet in Model.Freebets)
+                    {
+                        <tr>
+                            <td>@freebet.Account</td>
+                            <td>@freebet.Player</td>
+                            <td class="text-end text-nowrap">
+                                @freebet.Amount.ToString("N2")
+                                kr.
+                            </td>
+                            <td class="text-nowrap">
+                                @freebet.ExpiryDate.ToString(
+                                    "dd-MM-yyyy")
+                            </td>
+                            <td>
+                                @(freebet.Terms ?? "—")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

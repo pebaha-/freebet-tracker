@@ -1,7 +1,11 @@
+using FreebetTracker.Web.Data;
+using FreebetTracker.Web.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<IFreebetRepository, DemoFreebetRepository>();
 
 var app = builder.Build();
 

@@ -43,6 +43,9 @@ public class EditModel(IFreebetRepository repository) : PageModel
         [StringLength(200)]
         [Display(Name = "Vilkår")]
         public string? Terms { get; set; }
+
+        [Display(Name = "Brugt")]
+        public bool IsUsed { get; set; }
     }
 
     public async Task<IActionResult> OnGetAsync(string id, CancellationToken cancellationToken)
@@ -64,7 +67,8 @@ public class EditModel(IFreebetRepository repository) : PageModel
             ExpiryTime = freebet.ExpiryTimeSpecified
                 ? TimeOnly.FromDateTime(freebet.ExpiryDate)
                 : null,
-            Terms = freebet.Terms
+            Terms = freebet.Terms,
+            IsUsed = freebet.IsUsed
         };
 
         return Page();

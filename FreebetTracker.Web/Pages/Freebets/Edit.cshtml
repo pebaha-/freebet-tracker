@@ -59,6 +59,13 @@
         <span asp-validation-for="Input.Terms" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <div class="form-check">
+            <input asp-for="Input.IsUsed" class="form-check-input" />
+            <label asp-for="Input.IsUsed" class="form-check-label"></label>
+        </div>
+    </div>
+
     <button type="submit" class="btn btn-primary">Gem ændringer</button>
     <a asp-page="./Index" class="btn btn-secondary">Annuller</a>
 </form>

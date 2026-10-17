@@ -17,7 +17,8 @@ internal static class FreebetTableEntityMapper
             ["Amount"] = freebet.Amount.ToString(CultureInfo.InvariantCulture),
             ["ExpiryDate"] = freebet.ExpiryDate.ToString("O", CultureInfo.InvariantCulture),
             ["ExpiryTimeSpecified"] = freebet.ExpiryTimeSpecified,
-            ["ReminderSent"] = freebet.ReminderSent
+            ["ReminderSent"] = freebet.ReminderSent,
+            ["IsUsed"] = freebet.IsUsed
         };
 
         if (freebet.Terms is not null)
@@ -47,7 +48,10 @@ internal static class FreebetTableEntityMapper
             ExpiryDate = expiryDate,
             ExpiryTimeSpecified = expiryTimeSpecified,
             Terms = GetOptionalString(entity, "Terms"),
-            ReminderSent = entity.GetBoolean("ReminderSent") ?? false
+            ReminderSent = entity.GetBoolean("ReminderSent") ?? false,
+            IsUsed = entity.TryGetValue("IsUsed", out var isUsed)
+                && isUsed is bool used
+                && used
         };
     }
 

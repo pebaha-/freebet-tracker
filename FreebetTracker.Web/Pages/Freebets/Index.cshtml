@@ -44,6 +44,7 @@
                         </th>
                         <th scope="col">Udløbsdato</th>
                         <th scope="col">Vilkår</th>
+                        <th scope="col">Status</th>
                         <th scope="col">Handlinger</th>
                     </tr>
                 </thead>
@@ -71,6 +72,16 @@
                                 @(freebet.Terms ?? "—")
                             </td>
                             <td>
+                                @if (freebet.IsUsed)
+                                {
+                                    <span class="badge text-bg-secondary">Brugt</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-success">Ubrugt</span>
+                                }
+                            </td>
+                            <td>
                                 <a asp-page="./Edit"
                                    asp-route-id="@freebet.Id"
                                    class="btn btn-sm btn-outline-primary">
@@ -84,6 +95,18 @@
                                         data-freebet-account="@freebet.Account">
                                     Slet
                                 </button>
+                                @if (!freebet.IsUsed)
+                                {
+                                    <form method="post"
+                                          asp-page-handler="MarkAsUsed"
+                                          class="d-inline">
+                                        <input type="hidden" name="id" value="@freebet.Id" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-success">
+                                            Markér som brugt
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }

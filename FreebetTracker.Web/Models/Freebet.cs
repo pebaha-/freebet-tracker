@@ -17,4 +17,6 @@ public sealed class Freebet
     public string? Terms { get; set; }
 
     public bool ReminderSent { get; set; }
+
+    public bool IsUsed { get; set; } = false;
 }

@@ -29,4 +29,20 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         return RedirectToPage("./Index");
     }
+
+    public async Task<IActionResult> OnPostMarkAsUsedAsync(string id, CancellationToken cancellationToken)
+    {
+        var freebet = await repository.GetByIdAsync(id, cancellationToken);
+
+        if (freebet is null)
+        {
+            return NotFound();
+        }
+
+        freebet.IsUsed = true;
+
+        await repository.UpdateAsync(freebet, cancellationToken);
+
+        return RedirectToPage("./Index");
+    }
 }

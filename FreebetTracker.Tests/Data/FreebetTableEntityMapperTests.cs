@@ -3,7 +3,7 @@ using Azure.Data.Tables;
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Models;
 
-namespace FreebetTracker.Tests;
+namespace FreebetTracker.Tests.Data;
 
 [TestClass]
 public sealed class FreebetTableEntityMapperTests
@@ -107,6 +107,18 @@ public sealed class FreebetTableEntityMapperTests
         };
 
         Assert.ThrowsExactly<InvalidOperationException>(() => FreebetTableEntityMapper.MapToFreebet(entity));
+    }
+
+    [TestMethod]
+    public void MapToFreebet_WhenRequiredPropertyHasWrongType_Throws()
+    {
+        var entity = CreateMinimalEntity();
+        entity["Player"] = 123;
+
+        var exception = Assert.ThrowsExactly<InvalidOperationException>(
+            () => FreebetTableEntityMapper.MapToFreebet(entity));
+
+        Assert.Contains("Player", exception.Message);
     }
 
     private static Freebet CreateFreebet()

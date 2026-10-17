@@ -11,4 +11,6 @@ public interface IFreebetRepository
     Task AddAsync(Freebet freebet, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(Freebet freebet, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(Freebet freebet, CancellationToken cancellationToken = default);
 }

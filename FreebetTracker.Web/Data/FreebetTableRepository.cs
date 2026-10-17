@@ -45,7 +45,7 @@ public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRe
         await tableClient.AddEntityAsync(entity, cancellationToken);
     }
 
-    public async Task UpdateAsync(Freebet freebet,  CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Freebet freebet, CancellationToken cancellationToken = default)
     {
         var existing = await GetByIdAsync(freebet.Id, cancellationToken);
 
@@ -66,5 +66,10 @@ public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRe
         var entity = FreebetTableEntityMapper.MapToEntity(freebet);
 
         await tableClient.UpdateEntityAsync(entity, ETag.All, TableUpdateMode.Replace, cancellationToken);
+    }
+
+    public async Task DeleteAsync(Freebet freebet, CancellationToken cancellationToken = default)
+    {
+        await tableClient.DeleteEntityAsync(PartitionKey, freebet.Id, cancellationToken: cancellationToken);
     }
 }

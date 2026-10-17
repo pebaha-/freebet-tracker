@@ -34,4 +34,16 @@ internal class FakeFreebetRepository : IFreebetRepository
 
         return Task.CompletedTask;
     }
+
+    public Task DeleteAsync(Freebet freebet, CancellationToken cancellationToken = default)
+    {
+        var index = Freebets.FindIndex(f => f.Id == freebet.Id);
+
+        if (index >= 0)
+        {
+            Freebets.RemoveAt(index);
+        }
+
+        return Task.CompletedTask;
+    }
 }

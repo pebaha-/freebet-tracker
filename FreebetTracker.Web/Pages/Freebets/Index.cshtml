@@ -76,6 +76,14 @@
                                    class="btn btn-sm btn-outline-primary">
                                     Rediger
                                 </a>
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        data-freebet-id="@freebet.Id"
+                                        data-freebet-account="@freebet.Account">
+                                    Slet
+                                </button>
                             </td>
                         </tr>
                     }
@@ -84,3 +92,56 @@
         </div>
     }
 </div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1"
+     aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    Slet freebet?
+                </h5>
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Luk"></button>
+            </div>
+
+            <div class="modal-body">
+                Er du sikker på, at du vil slette dette freebet?
+                <div class="mt-2 fw-semibold" id="deleteFreebetAccount"></div>
+                <div class="text-muted small mt-2">
+                    Handlingen kan ikke fortrydes.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Annuller
+                </button>
+
+                <form method="post" asp-page-handler="Delete"
+                      id="deleteForm">
+                    <input type="hidden" name="id" id="deleteFreebetId" />
+                    <button type="submit" class="btn btn-danger">
+                        <span class="me-1">Slet</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('deleteModal')
+        .addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+
+            const id = button.getAttribute('data-freebet-id');
+            const account = button.getAttribute('data-freebet-account');
+
+            document.getElementById('deleteFreebetId').value = id;
+            document.getElementById('deleteFreebetAccount').textContent =
+                account || '';
+        });
+</script>

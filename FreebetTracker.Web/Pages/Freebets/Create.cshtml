@@ -2,10 +2,10 @@
 @model FreebetTracker.Web.Pages.Freebets.CreateModel
 
 @{
-    ViewData["Title"] = "Create freebet";
+    ViewData["Title"] = "Nyt freebet";
 }
 
-<h1>Create freebet</h1>
+<h1>@ViewData["Title"]</h1>
 
 <form method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -47,7 +47,7 @@
                class="form-control" />
         <span asp-validation-for="Input.ExpiryTime" class="text-danger"></span>
         <div class="form-text">
-            Leave blank if the freebet expires at the end of the selected date.
+            Efterlad blank hvis du ikke ønsker at angive et specifikt tidspunkt for udløb.
         </div>
     </div>
 
@@ -57,8 +57,8 @@
         <span asp-validation-for="Input.Terms" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Save freebet</button>
-    <a asp-page="./Index" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary">Gem freebet</button>
+    <a asp-page="./Index" class="btn btn-secondary">Annuller</a>
 </form>
 
 @section Scripts {

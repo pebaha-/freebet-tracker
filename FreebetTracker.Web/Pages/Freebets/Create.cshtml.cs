@@ -15,30 +15,30 @@ public class CreateModel(IFreebetRepository repository) : PageModel
     {
         [Required]
         [StringLength(100)]
-        [Display(Name = "Player")]
+        [Display(Name = "Spiller")]
         public string Player { get; set; } = string.Empty;
 
         [Required]
         [StringLength(100)]
-        [Display(Name = "Account")]
+        [Display(Name = "Konto")]
         public string Account { get; set; } = string.Empty;
 
         [Required]
         [Range(typeof(decimal), "0,01", "1000000")]
-        [Display(Name = "Amount (DKK)")]
+        [Display(Name = "Værdi (DKK)")]
         public decimal? Amount { get; set; }
 
         [Required]
         [DataType(DataType.DateTime)]
-        [Display(Name = "Expiry date")]
+        [Display(Name = "Udløbsdato")]
         public DateTime? ExpiryDate { get; set; }
 
         [DataType(DataType.Time)]
-        [Display(Name = "Expiry time (optional)")]
+        [Display(Name = "Udløbstid (valgfrit)")]
         public TimeOnly? ExpiryTime { get; set; }
 
         [StringLength(200)]
-        [Display(Name = "Terms")]
+        [Display(Name = "Vilkår")]
         public string? Terms { get; set; }
     }
 

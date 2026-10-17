@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Covlerlet output
+FreebetTracker.Tests/coveragereport/

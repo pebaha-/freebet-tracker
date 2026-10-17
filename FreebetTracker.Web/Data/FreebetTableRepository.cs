@@ -15,13 +15,22 @@ public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRe
 
         await foreach (var entity in tableClient.QueryAsync<TableEntity>(filter: $"PartitionKey eq '{PartitionKey}'", cancellationToken: cancellationToken))
         {
+            var expiryDate = DateTime.Parse(GetString(entity, "ExpiryDate"), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+            var expiryTimeSpecified = entity.GetBoolean("ExpiryTimeSpecified") ?? false;
+
+            if (!expiryTimeSpecified)
+            {
+                expiryDate = expiryDate.Date.AddDays(1).AddTicks(-1);
+            }
+
             freebets.Add(new Freebet
             {
                 Id = entity.RowKey,
                 Player = GetString(entity, "Player"),
                 Account = GetString(entity, "Account"),
                 Amount = decimal.Parse(GetString(entity, "Amount"), CultureInfo.InvariantCulture),
-                ExpiryDate = DateTime.Parse(GetString(entity, "ExpiryDate"), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind),
+                ExpiryDate = expiryDate,
+                ExpiryTimeSpecified = expiryTimeSpecified,
                 Terms = GetOptionalString(entity, "Terms"),
                 ReminderSent = entity.GetBoolean("ReminderSent") ?? false
             });
@@ -57,7 +66,8 @@ public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRe
             ["Player"] = freebet.Player,
             ["Account"] = freebet.Account,
             ["Amount"] = freebet.Amount.ToString(CultureInfo.InvariantCulture),
-            ["ExpiryDate"] = freebet.ExpiryDate.ToString("O", CultureInfo.InvariantCulture), ["ReminderSent"] = freebet.ReminderSent
+            ["ExpiryDate"] = freebet.ExpiryDate.ToString("O", CultureInfo.InvariantCulture), ["ReminderSent"] = freebet.ReminderSent,
+            ["ExpiryTimeSpecified"] = freebet.ExpiryTimeSpecified
         };
 
         if (freebet.Terms is not null)

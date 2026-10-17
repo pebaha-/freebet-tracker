@@ -40,6 +40,18 @@
     </div>
 
     <div class="mb-3">
+        <label asp-for="Input.ExpiryTime" class="form-label"></label>
+        <input asp-for="Input.ExpiryTime"
+               type="time"
+               step="60"
+               class="form-control" />
+        <span asp-validation-for="Input.ExpiryTime" class="text-danger"></span>
+        <div class="form-text">
+            Leave blank if the freebet expires at the end of the selected date.
+        </div>
+    </div>
+
+    <div class="mb-3">
         <label asp-for="Input.Terms" class="form-label"></label>
         <textarea asp-for="Input.Terms" class="form-control" rows="3"></textarea>
         <span asp-validation-for="Input.Terms" class="text-danger"></span>

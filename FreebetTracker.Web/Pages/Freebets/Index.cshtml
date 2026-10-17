@@ -57,8 +57,14 @@
                                 kr.
                             </td>
                             <td class="text-nowrap">
-                                @freebet.ExpiryDate.ToString(
-                                    "dd-MM-yyyy")
+                                @if (freebet.ExpiryTimeSpecified)
+                                {
+                                    @freebet.ExpiryDate.ToString("dd-MM-yyyy HH:mm")
+                                }
+                                else
+                                {
+                                    @freebet.ExpiryDate.ToString("dd-MM-yyyy")
+                                }
                             </td>
                             <td>
                                 @(freebet.Terms ?? "—")

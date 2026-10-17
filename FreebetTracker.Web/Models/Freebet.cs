@@ -12,6 +12,8 @@ public sealed class Freebet
 
     public DateTime ExpiryDate { get; set; }
 
+    public bool ExpiryTimeSpecified { get; set; }
+
     public string? Terms { get; set; }
 
     public bool ReminderSent { get; set; }

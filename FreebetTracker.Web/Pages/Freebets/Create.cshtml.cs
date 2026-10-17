@@ -33,6 +33,10 @@ public class CreateModel(IFreebetRepository repository) : PageModel
         [Display(Name = "Expiry date")]
         public DateTime? ExpiryDate { get; set; }
 
+        [DataType(DataType.Time)]
+        [Display(Name = "Expiry time (optional)")]
+        public TimeOnly? ExpiryTime { get; set; }
+
         [StringLength(200)]
         [Display(Name = "Terms")]
         public string? Terms { get; set; }
@@ -50,12 +54,18 @@ public class CreateModel(IFreebetRepository repository) : PageModel
             return Page();
         }
 
+        var expiryDate = Input.ExpiryDate!.Value.Date;
+        var expiryTimeSpecified = Input.ExpiryTime.HasValue;
+
         var freebet = new Freebet
         {
             Player = Input.Player.Trim(),
             Account = Input.Account.Trim(),
             Amount = Input.Amount!.Value,
-            ExpiryDate = Input.ExpiryDate!.Value.Date,
+            ExpiryDate = expiryTimeSpecified
+                ? expiryDate.Add(Input.ExpiryTime!.Value.ToTimeSpan())
+                : expiryDate.AddDays(1).AddTicks(-1),
+            ExpiryTimeSpecified = expiryTimeSpecified,
             Terms = string.IsNullOrWhiteSpace(Input.Terms)
                 ? null
                 : Input.Terms.Trim(),

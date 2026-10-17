@@ -6,7 +6,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<IFreebetRepository, DemoFreebetRepository>();
 builder.Services.AddSingleton(sp =>
 {
     var connectionString = builder.Configuration[

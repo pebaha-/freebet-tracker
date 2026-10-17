@@ -44,6 +44,7 @@
                         </th>
                         <th scope="col">Udløbsdato</th>
                         <th scope="col">Vilkår</th>
+                        <th scope="col">Handlinger</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,6 +69,13 @@
                             </td>
                             <td>
                                 @(freebet.Terms ?? "—")
+                            </td>
+                            <td>
+                                <a asp-page="./Edit"
+                                   asp-route-id="@freebet.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Rediger
+                                </a>
                             </td>
                         </tr>
                     }

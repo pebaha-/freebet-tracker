@@ -1,0 +1,54 @@
+﻿@page
+@model FreebetTracker.Web.Pages.Freebets.CreateModel
+
+@{
+    ViewData["Title"] = "Create freebet";
+}
+
+<h1>Create freebet</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Player" class="form-label"></label>
+        <input asp-for="Input.Player" class="form-control" />
+        <span asp-validation-for="Input.Player" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Account" class="form-label"></label>
+        <input asp-for="Input.Account" class="form-control" />
+        <span asp-validation-for="Input.Account" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Amount" class="form-label"></label>
+        <input asp-for="Input.Amount"
+               type="number"
+               min="1"
+               max="1000000"
+               step="1"
+               class="form-control" />
+        <span asp-validation-for="Input.Amount" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.ExpiryDate" class="form-label"></label>
+        <input asp-for="Input.ExpiryDate" type="date" class="form-control" />
+        <span asp-validation-for="Input.ExpiryDate" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Terms" class="form-label"></label>
+        <textarea asp-for="Input.Terms" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Input.Terms" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save freebet</button>
+    <a asp-page="./Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

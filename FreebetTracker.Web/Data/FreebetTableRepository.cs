@@ -44,4 +44,27 @@ public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRe
             ? value as string
             : null;
     }
+
+    public async Task AddAsync(Freebet freebet, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(freebet.Id))
+        {
+            freebet.Id = Guid.NewGuid().ToString();
+        }
+
+        var entity = new TableEntity(PartitionKey, freebet.Id)
+        {
+            ["Player"] = freebet.Player,
+            ["Account"] = freebet.Account,
+            ["Amount"] = freebet.Amount.ToString(CultureInfo.InvariantCulture),
+            ["ExpiryDate"] = freebet.ExpiryDate.ToString("O", CultureInfo.InvariantCulture), ["ReminderSent"] = freebet.ReminderSent
+        };
+
+        if (freebet.Terms is not null)
+        {
+            entity["Terms"] = freebet.Terms;
+        }
+
+        await tableClient.AddEntityAsync(entity, cancellationToken);
+    }
 }

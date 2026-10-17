@@ -208,6 +208,33 @@ public class FreebetTableRepositoryTests
             Times.Never);
     }
 
+
+    [TestMethod]
+    public async Task DeleteAsync_DeletesEntityUsingPartitionKeyAndId()
+    {
+        var freebet = CreateFreebet("test-id", "Test player", "Test account");
+
+        using var cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = cancellationTokenSource.Token;
+
+        _tableClientMock
+            .Setup(c => c.DeleteEntityAsync(
+                PartitionKey,
+                "test-id",
+                It.IsAny<ETag>(),
+                cancellationToken))
+            .ReturnsAsync(Mock.Of<Response>());
+
+        await _repository.DeleteAsync(freebet, cancellationToken);
+
+        _tableClientMock.Verify(c => c.DeleteEntityAsync(
+            PartitionKey,
+            "test-id",
+            It.IsAny<ETag>(),
+            cancellationToken),
+            Times.Once);
+    }
+
     private void SetupQuery(params TableEntity[] entities)
     {
         var page = Page<TableEntity>.FromValues(entities, continuationToken: null, response: Mock.Of<Response>());

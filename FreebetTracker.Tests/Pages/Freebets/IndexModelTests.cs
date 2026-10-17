@@ -1,6 +1,8 @@
 ﻿using FreebetTracker.Tests.Fakes;
 using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Pages.Freebets;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 
 namespace FreebetTracker.Tests.Pages.Freebets;
 
@@ -52,6 +54,36 @@ public sealed class IndexModelTests
         await model.OnGetAsync(CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "late", "early" }, repository.Freebets.Select(f => f.Id).ToArray());
+    }
+
+    [TestMethod]
+    public async Task OnPostDeleteAsync_WhenFreebetExists_DeletesAndRedirects()
+    {
+        var repository = new FakeFreebetRepository();
+        var freebet = CreateFreebet("test-id", DateTime.Today.AddDays(7));
+        repository.Freebets.Add(freebet);
+        var model = new IndexModel(repository);
+
+        var result = await model.OnPostDeleteAsync("test-id", CancellationToken.None);
+
+        Assert.IsInstanceOfType<RedirectToPageResult>(result);
+
+        var redirect = (RedirectToPageResult)result;
+        Assert.AreEqual("./Index", redirect.PageName);
+
+        Assert.IsFalse(repository.Freebets.Any(f => f.Id == "test-id"));
+    }
+
+    [TestMethod]
+    public async Task OnPostDeleteAsync_WhenFreebetDoesNotExist_ReturnsNotFound()
+    {
+        var repository = new FakeFreebetRepository();
+        var model = new IndexModel(repository);
+
+        var result = await model.OnPostDeleteAsync("missing-id", CancellationToken.None);
+
+        Assert.IsInstanceOfType<NotFoundResult>(result);
+        Assert.HasCount(0, repository.Freebets);
     }
 
     private static Freebet CreateFreebet(string id, DateTime expiryDate)

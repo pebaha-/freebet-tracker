@@ -33,18 +33,57 @@
     else
     {
         <div class="table-responsive">
-            <table class="table table-striped
-                table-hover align-middle">
+            <table class="table table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">Konto</th>
-                        <th scope="col">Spiller</th>
-                        <th scope="col" class="text-end">
-                            Værdi
+                        <th scope="col">
+                            <a asp-page="./Index"
+                               asp-route-sortBy="Account"
+                               asp-route-sortDescending="@Model.NextSortDescending("Account")"
+                               class="text-decoration-none text-reset">
+                                Konto @Model.SortIndicator("Account")
+                            </a>
                         </th>
-                        <th scope="col">Udløbsdato</th>
-                        <th scope="col">Vilkår</th>
-                        <th scope="col">Status</th>
+                        <th scope="col">
+                            <a asp-page="./Index"
+                               asp-route-sortBy="Player"
+                               asp-route-sortDescending="@Model.NextSortDescending("Player")"
+                               class="text-decoration-none text-reset">
+                                Spiller @Model.SortIndicator("Player")
+                            </a>
+                        </th>
+                        <th scope="col" class="text-end">
+                            <a asp-page="./Index"
+                               asp-route-sortBy="Amount"
+                               asp-route-sortDescending="@Model.NextSortDescending("Amount")"
+                               class="text-decoration-none text-reset">
+                                Værdi @Model.SortIndicator("Amount")
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a asp-page="./Index"
+                               asp-route-sortBy="ExpiryDate"
+                               asp-route-sortDescending="@Model.NextSortDescending("ExpiryDate")"
+                               class="text-decoration-none text-reset">
+                                Udløbsdato @Model.SortIndicator("ExpiryDate")
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a asp-page="./Index"
+                               asp-route-sortBy="Terms"
+                               asp-route-sortDescending="@Model.NextSortDescending("Terms")"
+                               class="text-decoration-none text-reset">
+                                Vilkår @Model.SortIndicator("Terms")
+                            </a>
+                        </th>
+                        <th scope="col">
+                            <a asp-page="./Index"
+                               asp-route-sortBy="IsUsed"
+                               asp-route-sortDescending="@Model.NextSortDescending("IsUsed")"
+                               class="text-decoration-none text-reset">
+                                Status @Model.SortIndicator("IsUsed")
+                            </a>
+                        </th>
                         <th scope="col">Handlinger</th>
                     </tr>
                 </thead>
@@ -101,6 +140,8 @@
                                           asp-page-handler="MarkAsUsed"
                                           class="d-inline">
                                         <input type="hidden" name="id" value="@freebet.Id" />
+                                        <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                                        <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
                                         <button type="submit"
                                                 class="btn btn-sm btn-outline-success">
                                             Markér som brugt
@@ -146,6 +187,8 @@
                 <form method="post" asp-page-handler="Delete"
                       id="deleteForm">
                     <input type="hidden" name="id" id="deleteFreebetId" />
+                    <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                    <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
                     <button type="submit" class="btn btn-danger">
                         <span class="me-1">Slet</span>
                     </button>

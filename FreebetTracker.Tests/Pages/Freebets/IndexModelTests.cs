@@ -22,7 +22,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync(CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "early", "middle", "late" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -33,7 +33,7 @@ public sealed class IndexModelTests
         var repository = new FakeFreebetRepository();
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync(CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, CancellationToken.None);
 
         Assert.IsNotNull(model.Freebets);
         Assert.HasCount(0, model.Freebets);
@@ -51,7 +51,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync(CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "late", "early" }, repository.Freebets.Select(f => f.Id).ToArray());
     }

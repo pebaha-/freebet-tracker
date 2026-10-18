@@ -235,6 +235,47 @@ public class FreebetTableRepositoryTests
             Times.Once);
     }
 
+
+    [TestMethod]
+    public async Task GetByIdAsync_WhenIsUsedPropertyIsMissing_ReturnsUnusedFreebet()
+    {
+        var entity = CreateEntityWithoutIsUsed("id-1");
+
+        SetupGetEntity("id-1", entity);
+
+        var result = await _repository.GetByIdAsync("id-1");
+
+        Assert.IsNotNull(result);
+        Assert.IsFalse(result.IsUsed);
+    }
+
+    [TestMethod]
+    public async Task GetByIdAsync_WhenIsUsedPropertyIsNotBoolean_ReturnsUnusedFreebet()
+    {
+        var entity = CreateEntityWithoutIsUsed("id-1");
+        entity["IsUsed"] = "true";
+
+        SetupGetEntity("id-1", entity);
+
+        var result = await _repository.GetByIdAsync("id-1");
+
+        Assert.IsNotNull(result);
+        Assert.IsFalse(result.IsUsed);
+    }
+
+    private static TableEntity CreateEntityWithoutIsUsed(string id)
+    {
+        return new TableEntity(PartitionKey, id)
+        {
+            ["Player"] = "Player 1",
+            ["Account"] = "Account 1",
+            ["Amount"] = "100",
+            ["ExpiryDate"] = new DateTime(2026, 12, 31, 18, 0, 0, DateTimeKind.Utc).ToString("O", System.Globalization.CultureInfo.InvariantCulture),
+            ["ExpiryTimeSpecified"] = true,
+            ["ReminderSent"] = false
+        };
+    }
+
     private void SetupQuery(params TableEntity[] entities)
     {
         var page = Page<TableEntity>.FromValues(entities, continuationToken: null, response: Mock.Of<Response>());

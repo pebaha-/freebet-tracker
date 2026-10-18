@@ -103,8 +103,7 @@ public class EditModel(IFreebetRepository repository) : PageModel
             ExpiryTimeSpecified = expiryTimeSpecified,
             Terms = string.IsNullOrWhiteSpace(Input.Terms)
                 ? null
-                : Input.Terms.Trim(),
-            ReminderSent = existing.ReminderSent
+                : Input.Terms.Trim()
         };
 
         await repository.UpdateAsync(freebet, cancellationToken);

@@ -133,56 +133,6 @@ public class FreebetTableRepositoryTests
     }
 
     [TestMethod]
-    public async Task UpdateAsync_WhenExpiryIsUnchanged_PreservesReminderSent()
-    {
-        var existing = CreateFreebet("id-1", "Player 1", "Account 1", reminderSent: true);
-        SetupGetEntity("id-1", FreebetTableEntityMapper.MapToEntity(existing));
-        var updated = CreateFreebet("id-1", "Player 1", "Account 1", reminderSent: false);
-        TableEntity? updatedEntity = null;
-        SetupUpdateCapture(entity => updatedEntity = entity);
-
-        await _repository.UpdateAsync(updated);
-
-        Assert.IsNotNull(updatedEntity);
-        Assert.IsTrue((bool)updatedEntity["ReminderSent"]);
-        Assert.IsTrue(updated.ReminderSent);
-
-        VerifyReplaceUpdate();
-    }
-
-    [TestMethod]
-    public async Task UpdateAsync_WhenExpiryDateChanges_ResetsReminderSent()
-    {
-        var existing = CreateFreebet("id-1", "Player 1", "Account 1", reminderSent: true);
-        SetupGetEntity("id-1", FreebetTableEntityMapper.MapToEntity(existing));
-        var updated = CreateFreebet("id-1", "Player 1", "Account 1", expiryDate: existing.ExpiryDate.AddDays(1), reminderSent: true);
-        TableEntity? updatedEntity = null;
-        SetupUpdateCapture(entity => updatedEntity = entity);
-
-        await _repository.UpdateAsync(updated);
-
-        Assert.IsNotNull(updatedEntity);
-        Assert.IsFalse((bool)updatedEntity["ReminderSent"]);
-        Assert.IsFalse(updated.ReminderSent);
-    }
-
-    [TestMethod]
-    public async Task UpdateAsync_WhenExpiryTimeSpecifiedChanges_ResetsReminderSent()
-    {
-        var existing = CreateFreebet("id-1", "Player 1", "Account 1", reminderSent: true, expiryTimeSpecified: false);
-        SetupGetEntity("id-1", FreebetTableEntityMapper.MapToEntity(existing));
-        var updated = CreateFreebet("id-1", "Player 1", "Account 1", expiryDate: existing.ExpiryDate, reminderSent: true, expiryTimeSpecified: true);
-        TableEntity? updatedEntity = null;
-        SetupUpdateCapture(entity => updatedEntity = entity);
-
-        await _repository.UpdateAsync(updated);
-
-        Assert.IsNotNull(updatedEntity);
-        Assert.IsFalse((bool)updatedEntity["ReminderSent"]);
-        Assert.IsFalse(updated.ReminderSent);
-    }
-
-    [TestMethod]
     public async Task UpdateAsync_WhenEntityDoesNotExist_ThrowsInvalidOperationException()
     {
         _tableClientMock
@@ -271,8 +221,7 @@ public class FreebetTableRepositoryTests
             ["Account"] = "Account 1",
             ["Amount"] = "100",
             ["ExpiryDate"] = new DateTime(2026, 12, 31, 18, 0, 0, DateTimeKind.Utc).ToString("O", System.Globalization.CultureInfo.InvariantCulture),
-            ["ExpiryTimeSpecified"] = true,
-            ["ReminderSent"] = false
+            ["ExpiryTimeSpecified"] = true
         };
     }
 
@@ -302,30 +251,7 @@ public class FreebetTableRepositoryTests
                 Mock.Of<Response>()));
     }
 
-    private void SetupUpdateCapture(Action<TableEntity> capture)
-    {
-        _tableClientMock
-            .Setup(c => c.UpdateEntityAsync(
-                It.IsAny<TableEntity>(),
-                It.IsAny<ETag>(),
-                It.IsAny<TableUpdateMode>(),
-                It.IsAny<CancellationToken>()))
-            .Callback<TableEntity, ETag, TableUpdateMode, CancellationToken>(
-                (entity, _, _, _) => capture(entity))
-            .ReturnsAsync(Mock.Of<Response>());
-    }
-
-    private void VerifyReplaceUpdate()
-    {
-        _tableClientMock.Verify(c => c.UpdateEntityAsync(
-            It.IsAny<TableEntity>(),
-            ETag.All,
-            TableUpdateMode.Replace,
-            It.IsAny<CancellationToken>()),
-            Times.Once);
-    }
-
-    private static Freebet CreateFreebet(string id, string player, string account, DateTime? expiryDate = null, bool reminderSent = false, bool expiryTimeSpecified = true)
+    private static Freebet CreateFreebet(string id, string player, string account, DateTime? expiryDate = null, bool isUsed = false, bool expiryTimeSpecified = true)
     {
         return new Freebet
         {
@@ -336,7 +262,7 @@ public class FreebetTableRepositoryTests
             ExpiryDate = expiryDate ?? new DateTime(2026, 12, 31, 18, 0, 0, DateTimeKind.Local),
             ExpiryTimeSpecified = expiryTimeSpecified,
             Terms = "Test terms",
-            ReminderSent = reminderSent
+            IsUsed = isUsed
         };
     }
 }

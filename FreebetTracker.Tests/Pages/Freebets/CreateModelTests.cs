@@ -31,7 +31,6 @@ public sealed class CreateModelTests
         Assert.AreEqual("Peter", freebet.Player);
         Assert.AreEqual("Bet365", freebet.Account);
         Assert.AreEqual(125.50m, freebet.Amount);
-        Assert.IsFalse(freebet.ReminderSent);
 
         var redirect = result as RedirectToPageResult;
         Assert.IsNotNull(redirect);

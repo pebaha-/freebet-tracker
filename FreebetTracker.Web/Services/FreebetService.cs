@@ -9,7 +9,7 @@ public class FreebetService
         var currentTime = now ?? DateTime.Now;
 
         var eligible = freebets
-            .Where(f => !f.ReminderSent && f.ExpiryDate >= currentTime)
+            .Where(f => !f.IsUsed && f.ExpiryDate >= currentTime)
             .OrderBy(f => f.ExpiryDate)
             .ThenBy(f => f.Account)
             .ToList();

@@ -68,8 +68,7 @@ public class CreateModel(IFreebetRepository repository) : PageModel
             ExpiryTimeSpecified = expiryTimeSpecified,
             Terms = string.IsNullOrWhiteSpace(Input.Terms)
                 ? null
-                : Input.Terms.Trim(),
-            ReminderSent = false
+                : Input.Terms.Trim()
         };
 
         await repository.AddAsync(freebet, cancellationToken);

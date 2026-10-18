@@ -455,7 +455,6 @@ public sealed class IndexModelTests
             Amount = amount,
             ExpiryDate = expiryDate,
             ExpiryTimeSpecified = false,
-            ReminderSent = false,
             Terms = terms,
             IsUsed = false
         };

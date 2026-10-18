@@ -23,7 +23,6 @@ public sealed class FreebetTableEntityMapperTests
         Assert.AreEqual(freebet.ExpiryDate.ToString("O", CultureInfo.InvariantCulture), entity["ExpiryDate"]);
         Assert.IsTrue(entity["ExpiryTimeSpecified"].Equals(true));
         Assert.AreEqual(freebet.Terms, entity["Terms"]);
-        Assert.IsTrue(entity["ReminderSent"].Equals(true));
     }
 
     [TestMethod]
@@ -41,7 +40,6 @@ public sealed class FreebetTableEntityMapperTests
         Assert.AreEqual(original.ExpiryDate, result.ExpiryDate);
         Assert.AreEqual(original.ExpiryTimeSpecified, result.ExpiryTimeSpecified);
         Assert.AreEqual(original.Terms, result.Terms);
-        Assert.AreEqual(original.ReminderSent, result.ReminderSent);
     }
 
     [TestMethod]
@@ -65,8 +63,7 @@ public sealed class FreebetTableEntityMapperTests
             ["Player"] = "Test player",
             ["Account"] = "Test account",
             ["Amount"] = "125.50",
-            ["ExpiryDate"] = expiryDate.ToString("O", CultureInfo.InvariantCulture),
-            ["ReminderSent"] = false
+            ["ExpiryDate"] = expiryDate.ToString("O", CultureInfo.InvariantCulture)
         };
 
         var result = FreebetTableEntityMapper.MapToFreebet(entity);
@@ -131,8 +128,7 @@ public sealed class FreebetTableEntityMapperTests
             Amount = 125.50m,
             ExpiryDate = new DateTime(2026, 10, 20, 14, 35, 0),
             ExpiryTimeSpecified = true,
-            Terms = "Test terms",
-            ReminderSent = true
+            Terms = "Test terms"
         };
     }
 
@@ -144,8 +140,7 @@ public sealed class FreebetTableEntityMapperTests
             ["Account"] = "Test account",
             ["Amount"] = "100.00",
             ["ExpiryDate"] = new DateTime(2026, 10, 20).ToString("O", CultureInfo.InvariantCulture),
-            ["ExpiryTimeSpecified"] = true,
-            ["ReminderSent"] = false
+            ["ExpiryTimeSpecified"] = true
         };
     }
 }

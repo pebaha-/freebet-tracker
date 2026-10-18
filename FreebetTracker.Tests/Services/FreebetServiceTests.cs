@@ -54,8 +54,7 @@ public class FreebetServiceTests
             Player = "Testspiller",
             Account = "Testkonto",
             Amount = 100m,
-            ExpiryDate = DateTime.Now.AddDays(1),
-            ReminderSent = false
+            ExpiryDate = DateTime.Now.AddDays(1)
         };
 
         var result = FreebetService.SelectForReminder([freebet]);
@@ -74,8 +73,7 @@ public class FreebetServiceTests
         {
             Id = id,
             ExpiryDate = expiryDate,
-            Account = "Testkonto",
-            ReminderSent = false
+            Account = "Testkonto"
         };
     }
 }

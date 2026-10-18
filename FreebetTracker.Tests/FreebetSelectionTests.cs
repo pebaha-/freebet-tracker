@@ -8,14 +8,14 @@ public sealed class FreebetSelectionTests
 {
     private static readonly DateTime Now = new(2026, 10, 16, 12, 0, 0);
 
-    private static Freebet CreateFreebet(string id, string account, int daysUntilExpiry, bool reminderSent = false)
+    private static Freebet CreateFreebet(string id, string account, int daysUntilExpiry, bool isUsed = false)
     {
         return new Freebet
         {
             Id = id,
             Account = account,
             ExpiryDate = Now.AddDays(daysUntilExpiry),
-            ReminderSent = reminderSent
+            IsUsed = isUsed
         };
     }
 
@@ -86,7 +86,7 @@ public sealed class FreebetSelectionTests
     {
         var freebets = new[]
         {
-            CreateFreebet("1", "Bet365", 1, reminderSent: true),
+            CreateFreebet("1", "Bet365", 1, isUsed: true),
             CreateFreebet("2", "Unibet", 2)
         };
 
@@ -119,7 +119,7 @@ public sealed class FreebetSelectionTests
         var freebets = new[]
         {
             CreateFreebet("1", "Bet365", -1),
-            CreateFreebet("2", "Unibet", 1, reminderSent: true)
+            CreateFreebet("2", "Unibet", 1, isUsed: true)
         };
 
         var result = FreebetService.SelectForReminder(freebets, Now);

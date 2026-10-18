@@ -58,11 +58,6 @@ public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRe
             existing.ExpiryDate != freebet.ExpiryDate ||
             existing.ExpiryTimeSpecified != freebet.ExpiryTimeSpecified;
 
-        // Preserve the reminder status unless the expiry changes.
-        freebet.ReminderSent = expiryChanged
-            ? false
-            : existing.ReminderSent;
-
         var entity = FreebetTableEntityMapper.MapToEntity(freebet);
 
         await tableClient.UpdateEntityAsync(entity, ETag.All, TableUpdateMode.Replace, cancellationToken);

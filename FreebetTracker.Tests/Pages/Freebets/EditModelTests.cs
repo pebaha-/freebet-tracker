@@ -63,7 +63,6 @@ public sealed class EditModelTests
     public async Task OnPostAsync_WithValidInput_UpdatesFreebetAndRedirects()
     {
         var existing = CreateFreebet();
-        existing.ReminderSent = true;
         await _repository.AddAsync(existing);
 
         SetValidInput(existing.Id);
@@ -76,7 +75,6 @@ public sealed class EditModelTests
         Assert.AreEqual("Updated account", updated.Account);
         Assert.AreEqual(250m, updated.Amount);
         Assert.AreEqual("Updated terms", updated.Terms);
-        Assert.IsTrue(updated.ReminderSent);
 
         var redirect = result as RedirectToPageResult;
         Assert.IsNotNull(redirect);
@@ -164,8 +162,7 @@ public sealed class EditModelTests
             Amount = 125.50m,
             ExpiryDate = new DateTime(2026, 10, 20, 18, 30, 0),
             ExpiryTimeSpecified = true,
-            Terms = "Test terms",
-            ReminderSent = false
+            Terms = "Test terms"
         };
     }
 }

@@ -6,6 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.Configure<FreebetReminderOptions>(builder.Configuration.GetSection("FreebetReminder"));
+builder.Services.AddScoped<FreebetReminderService>();
+builder.Services.AddScoped<IEmailSender, GmailEmailSender>();
 builder.Services.AddSingleton(sp =>
 {
     var connectionString = builder.Configuration[

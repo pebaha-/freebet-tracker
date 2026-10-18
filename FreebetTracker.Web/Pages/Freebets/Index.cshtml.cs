@@ -9,6 +9,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 {
     public IReadOnlyList<Freebet> Freebets { get; private set; } = [];
 
+    public string StatusFilter { get; private set; } = "All";
+
     public string SortBy { get; private set; } = "ExpiryDate";
 
     public bool SortDescending { get; private set; }
@@ -29,8 +31,15 @@ public class IndexModel(IFreebetRepository repository) : PageModel
         return SortDescending ? " ▼" : " ▲";
     }
 
-    public async Task OnGetAsync(string? sortBy, bool sortDescending, CancellationToken cancellationToken)
+    public async Task OnGetAsync(string? sortBy, bool sortDescending, string? statusFilter, CancellationToken cancellationToken)
     {
+        StatusFilter = statusFilter?.ToLowerInvariant() switch
+        {
+            "unused" => "Unused",
+            "used" => "Used",
+            _ => "All"
+        };
+
         SortBy = sortBy?.ToLowerInvariant() switch
         {
             "account" => "Account",
@@ -46,36 +55,43 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         var freebets = await repository.GetAllAsync(cancellationToken);
 
+        var filteredFreebets = StatusFilter switch
+        {
+            "Unused" => freebets.Where(f => !f.IsUsed),
+            "Used" => freebets.Where(f => f.IsUsed),
+            _ => freebets
+        };
+
         var sorted = SortBy switch
         {
             "Account" => SortDescending
-                ? freebets.OrderByDescending(f => f.Account)
-                : freebets.OrderBy(f => f.Account),
+                ? filteredFreebets.OrderByDescending(f => f.Account)
+                : filteredFreebets.OrderBy(f => f.Account),
 
             "Player" => SortDescending
-                ? freebets.OrderByDescending(f => f.Player)
-                : freebets.OrderBy(f => f.Player),
+                ? filteredFreebets.OrderByDescending(f => f.Player)
+                : filteredFreebets.OrderBy(f => f.Player),
 
             "Amount" => SortDescending
-                ? freebets.OrderByDescending(f => f.Amount)
-                : freebets.OrderBy(f => f.Amount),
+                ? filteredFreebets.OrderByDescending(f => f.Amount)
+                : filteredFreebets.OrderBy(f => f.Amount),
 
             "ExpiryDate" => SortDescending
-                ? freebets.OrderByDescending(f => f.ExpiryDate)
-                : freebets.OrderBy(f => f.ExpiryDate),
+                ? filteredFreebets.OrderByDescending(f => f.ExpiryDate)
+                : filteredFreebets.OrderBy(f => f.ExpiryDate),
 
             "Terms" => SortDescending
-                ? freebets.OrderByDescending(f => f.Terms)
-                : freebets.OrderBy(f => f.Terms),
+                ? filteredFreebets.OrderByDescending(f => f.Terms)
+                : filteredFreebets.OrderBy(f => f.Terms),
 
             "IsUsed" => SortDescending
-                ? freebets.OrderByDescending(f => f.IsUsed)
-                : freebets.OrderBy(f => f.IsUsed),
+                ? filteredFreebets.OrderByDescending(f => f.IsUsed)
+                : filteredFreebets.OrderBy(f => f.IsUsed),
 
-            _ => freebets.OrderBy(f => f.ExpiryDate)
+            _ => filteredFreebets.OrderBy(f => f.ExpiryDate)
         };
 
-        Freebets = [..sorted];
+        Freebets = [.. sorted];
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(string id, CancellationToken cancellationToken)

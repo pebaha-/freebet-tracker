@@ -2,7 +2,6 @@
 using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Pages.Freebets;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
 
 namespace FreebetTracker.Tests.Pages.Freebets;
 
@@ -22,7 +21,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", sortDescending: false, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "early", "middle", "late" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -33,7 +32,7 @@ public sealed class IndexModelTests
         var repository = new FakeFreebetRepository();
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", sortDescending: false, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", CancellationToken.None);
 
         Assert.IsNotNull(model.Freebets);
         Assert.HasCount(0, model.Freebets);
@@ -51,7 +50,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", sortDescending: false, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "late", "early" }, repository.Freebets.Select(f => f.Id).ToArray());
     }

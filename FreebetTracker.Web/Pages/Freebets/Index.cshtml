@@ -24,137 +24,162 @@
         Nyt freebet
     </a>
 
-    @if (Model.Freebets.Count == 0)
-    {
-        <div class="alert alert-info">
-            Der er ingen freebets at vise.
-        </div>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col">
-                            <a asp-page="./Index"
-                               asp-route-sortBy="Account"
-                               asp-route-sortDescending="@Model.NextSortDescending("Account")"
-                               class="text-decoration-none text-reset">
-                                Konto @Model.SortIndicator("Account")
-                            </a>
-                        </th>
-                        <th scope="col">
-                            <a asp-page="./Index"
-                               asp-route-sortBy="Player"
-                               asp-route-sortDescending="@Model.NextSortDescending("Player")"
-                               class="text-decoration-none text-reset">
-                                Spiller @Model.SortIndicator("Player")
-                            </a>
-                        </th>
-                        <th scope="col" class="text-end">
-                            <a asp-page="./Index"
-                               asp-route-sortBy="Amount"
-                               asp-route-sortDescending="@Model.NextSortDescending("Amount")"
-                               class="text-decoration-none text-reset">
-                                Værdi @Model.SortIndicator("Amount")
-                            </a>
-                        </th>
-                        <th scope="col">
-                            <a asp-page="./Index"
-                               asp-route-sortBy="ExpiryDate"
-                               asp-route-sortDescending="@Model.NextSortDescending("ExpiryDate")"
-                               class="text-decoration-none text-reset">
-                                Udløbsdato @Model.SortIndicator("ExpiryDate")
-                            </a>
-                        </th>
-                        <th scope="col">
-                            <a asp-page="./Index"
-                               asp-route-sortBy="Terms"
-                               asp-route-sortDescending="@Model.NextSortDescending("Terms")"
-                               class="text-decoration-none text-reset">
-                                Vilkår @Model.SortIndicator("Terms")
-                            </a>
-                        </th>
-                        <th scope="col">
+    <div class="table-responsive">
+        <table class="table table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">
+                        <a asp-page="./Index"
+                           asp-route-sortBy="Account"
+                           asp-route-sortDescending="@Model.NextSortDescending("Account")"
+                           asp-route-statusFilter="@Model.StatusFilter"
+                           class="text-decoration-none text-reset">
+                            Konto @Model.SortIndicator("Account")
+                        </a>
+                    </th>
+                    <th scope="col">
+                        <a asp-page="./Index"
+                           asp-route-sortBy="Player"
+                           asp-route-sortDescending="@Model.NextSortDescending("Player")"
+                           asp-route-statusFilter="@Model.StatusFilter"
+                           class="text-decoration-none text-reset">
+                            Spiller @Model.SortIndicator("Player")
+                        </a>
+                    </th>
+                    <th scope="col" class="text-end">
+                        <a asp-page="./Index"
+                           asp-route-sortBy="Amount"
+                           asp-route-sortDescending="@Model.NextSortDescending("Amount")"
+                           asp-route-statusFilter="@Model.StatusFilter"
+                           class="text-decoration-none text-reset">
+                            Værdi @Model.SortIndicator("Amount")
+                        </a>
+                    </th>
+                    <th scope="col">
+                        <a asp-page="./Index"
+                           asp-route-sortBy="ExpiryDate"
+                           asp-route-sortDescending="@Model.NextSortDescending("ExpiryDate")"
+                           asp-route-statusFilter="@Model.StatusFilter"
+                           class="text-decoration-none text-reset">
+                            Udløbsdato @Model.SortIndicator("ExpiryDate")
+                        </a>
+                    </th>
+                    <th scope="col">
+                        <a asp-page="./Index"
+                           asp-route-sortBy="Terms"
+                           asp-route-sortDescending="@Model.NextSortDescending("Terms")"
+                           asp-route-statusFilter="@Model.StatusFilter"
+                           class="text-decoration-none text-reset">
+                            Vilkår @Model.SortIndicator("Terms")
+                        </a>
+                    </th>
+                    <th scope="col">
+                        <div class="d-flex align-items-center gap-2">
                             <a asp-page="./Index"
                                asp-route-sortBy="IsUsed"
                                asp-route-sortDescending="@Model.NextSortDescending("IsUsed")"
+                               asp-route-statusFilter="@Model.StatusFilter"
                                class="text-decoration-none text-reset">
                                 Status @Model.SortIndicator("IsUsed")
                             </a>
-                        </th>
-                        <th scope="col">Handlinger</th>
+
+                            <form method="get" class="m-0">
+                                <input type="hidden" name="sortBy"
+                                       value="@Model.SortBy" />
+                                <input type="hidden" name="sortDescending"
+                                       value="@Model.SortDescending.ToString().ToLowerInvariant()" />
+
+                                <select name="statusFilter"
+                                        class="form-select form-select-sm"
+                                        aria-label="Filtrér efter status"
+                                        onchange="this.form.submit()">
+                                    <option value="All"
+                                            selected="@(Model.StatusFilter == "All")">
+                                        Alle
+                                    </option>
+                                    <option value="Unused"
+                                            selected="@(Model.StatusFilter == "Unused")">
+                                        Ubrugte
+                                    </option>
+                                    <option value="Used"
+                                            selected="@(Model.StatusFilter == "Used")">
+                                        Brugte
+                                    </option>
+                                </select>
+                            </form>
+                        </div>
+                    </th>
+                    <th scope="col">Handlinger</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var freebet in Model.Freebets)
+                {
+                    <tr>
+                        <td>@freebet.Account</td>
+                        <td>@freebet.Player</td>
+                        <td class="text-end text-nowrap">
+                            @freebet.Amount.ToString("N2")
+                            kr.
+                        </td>
+                        <td class="text-nowrap">
+                            @if (freebet.ExpiryTimeSpecified)
+                            {
+                                @freebet.ExpiryDate.ToString("dd-MM-yyyy HH:mm")
+                            }
+                            else
+                            {
+                                @freebet.ExpiryDate.ToString("dd-MM-yyyy")
+                            }
+                        </td>
+                        <td>
+                            @(freebet.Terms ?? "—")
+                        </td>
+                        <td>
+                            @if (freebet.IsUsed)
+                            {
+                                <span class="badge text-bg-secondary">Brugt</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-success">Ubrugt</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-page="./Edit"
+                               asp-route-id="@freebet.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Rediger
+                            </a>
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal"
+                                    data-freebet-id="@freebet.Id"
+                                    data-freebet-account="@freebet.Account">
+                                Slet
+                            </button>
+                            @if (!freebet.IsUsed)
+                            {
+                                <form method="post"
+                                      asp-page-handler="MarkAsUsed"
+                                      class="d-inline">
+                                    <input type="hidden" name="id" value="@freebet.Id" />
+                                    <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                                    <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
+                                    <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-success">
+                                        Markér som brugt
+                                    </button>
+                                </form>
+                            }
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var freebet in Model.Freebets)
-                    {
-                        <tr>
-                            <td>@freebet.Account</td>
-                            <td>@freebet.Player</td>
-                            <td class="text-end text-nowrap">
-                                @freebet.Amount.ToString("N2")
-                                kr.
-                            </td>
-                            <td class="text-nowrap">
-                                @if (freebet.ExpiryTimeSpecified)
-                                {
-                                    @freebet.ExpiryDate.ToString("dd-MM-yyyy HH:mm")
-                                }
-                                else
-                                {
-                                    @freebet.ExpiryDate.ToString("dd-MM-yyyy")
-                                }
-                            </td>
-                            <td>
-                                @(freebet.Terms ?? "—")
-                            </td>
-                            <td>
-                                @if (freebet.IsUsed)
-                                {
-                                    <span class="badge text-bg-secondary">Brugt</span>
-                                }
-                                else
-                                {
-                                    <span class="badge text-bg-success">Ubrugt</span>
-                                }
-                            </td>
-                            <td>
-                                <a asp-page="./Edit"
-                                   asp-route-id="@freebet.Id"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Rediger
-                                </a>
-                                <button type="button"
-                                        class="btn btn-outline-danger btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteModal"
-                                        data-freebet-id="@freebet.Id"
-                                        data-freebet-account="@freebet.Account">
-                                    Slet
-                                </button>
-                                @if (!freebet.IsUsed)
-                                {
-                                    <form method="post"
-                                          asp-page-handler="MarkAsUsed"
-                                          class="d-inline">
-                                        <input type="hidden" name="id" value="@freebet.Id" />
-                                        <input type="hidden" name="sortBy" value="@Model.SortBy" />
-                                        <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-success">
-                                            Markér som brugt
-                                        </button>
-                                    </form>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="modal fade" id="deleteModal" tabindex="-1"

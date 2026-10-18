@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace FreebetTracker.Web.Services;
 
-public sealed class FreebetReminderService(IFreebetRepository repository, IEmailSender emailSender, IOptions<FreebetReminderOptions> options)
+public sealed class FreebetReminderService(IFreebetRepository repository, IEmailSender emailSender, IOptions<FreebetReminderOptions> options) : IFreebetReminderService
 {
     public async Task SendReminderAsync(CancellationToken cancellationToken = default)
     {

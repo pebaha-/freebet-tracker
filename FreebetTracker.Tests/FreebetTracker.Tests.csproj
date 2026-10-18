@@ -23,6 +23,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\FreebetTracker.Functions\FreebetTracker.Functions.csproj" />
 		<ProjectReference Include="..\FreebetTracker.Web\FreebetTracker.Web.csproj" />
 	</ItemGroup>
 

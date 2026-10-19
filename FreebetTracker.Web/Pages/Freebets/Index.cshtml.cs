@@ -1,3 +1,4 @@
+
 using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,8 @@ namespace FreebetTracker.Web.Pages.Freebets;
 
 public class IndexModel(IFreebetRepository repository) : PageModel
 {
+    private const int PageSize = 10;
+
     public IReadOnlyList<Freebet> Freebets { get; private set; } = [];
 
     public string StatusFilter { get; private set; } = "All";
@@ -15,10 +18,15 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
     public bool SortDescending { get; private set; }
 
+    public int PageNumber { get; private set; } = 1;
+
+    public int TotalPages { get; private set; } = 1;
+
+    public int TotalCount { get; private set; }
+
     public bool NextSortDescending(string column)
     {
-        return string.Equals(SortBy, column, StringComparison.OrdinalIgnoreCase)
-            && !SortDescending;
+        return string.Equals(SortBy, column, StringComparison.OrdinalIgnoreCase) && !SortDescending;
     }
 
     public string SortIndicator(string column)
@@ -31,7 +39,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
         return SortDescending ? " ▼" : " ▲";
     }
 
-    public async Task OnGetAsync(string? sortBy, bool sortDescending, string? statusFilter, CancellationToken cancellationToken)
+    public async Task OnGetAsync(string? sortBy, bool sortDescending, string? statusFilter, int pageNumber = 1,
+        CancellationToken cancellationToken = default)
     {
         StatusFilter = statusFilter?.ToLowerInvariant() switch
         {
@@ -91,10 +100,21 @@ public class IndexModel(IFreebetRepository repository) : PageModel
             _ => filteredFreebets.OrderBy(f => f.ExpiryDate)
         };
 
-        Freebets = [.. sorted];
+        var sortedList = sorted.ToList();
+
+        TotalCount = freebets.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
+
+        PageNumber = Math.Clamp(pageNumber, 1, TotalPages);
+
+        Freebets = [..
+                sortedList
+                .Skip((PageNumber - 1) * PageSize)
+                .Take(PageSize)
+            ];
     }
 
-    public async Task<IActionResult> OnPostDeleteAsync(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostDeleteAsync(string id, string? sortBy, bool sortDescending, string? statusFilter, int pageNumber = 1, CancellationToken cancellationToken = default)
     {
         var existing = await repository.GetByIdAsync(id, cancellationToken);
 
@@ -105,10 +125,10 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         await repository.DeleteAsync(existing, cancellationToken);
 
-        return RedirectToPage("./Index");
+        return RedirectToPage("./Index", new { sortBy, sortDescending, statusFilter, pageNumber });
     }
 
-    public async Task<IActionResult> OnPostMarkAsUsedAsync(string id, string sortBy, bool sortDescending, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostMarkAsUsedAsync(string id, string? sortBy, bool sortDescending, string? statusFilter, int pageNumber = 1, CancellationToken cancellationToken = default)
     {
         var freebet = await repository.GetByIdAsync(id, cancellationToken);
 
@@ -121,10 +141,6 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         await repository.UpdateAsync(freebet, cancellationToken);
 
-        return RedirectToPage("./Index", new
-        {
-            sortBy,
-            sortDescending
-        });
+        return RedirectToPage("./Index", new { sortBy, sortDescending, statusFilter, pageNumber });
     }
 }

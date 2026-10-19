@@ -16,7 +16,7 @@
         </div>
 
         <span class="badge text-bg-primary">
-            @Model.Freebets.Count i alt
+            @Model.TotalCount i alt
         </span>
     </div>
 
@@ -25,7 +25,7 @@
     </a>
 
     <div class="table-responsive">
-        <table class="table table table-hover align-middle">
+        <table class="table table-hover align-middle">
             <thead class="table-light">
                 <tr>
                     <th scope="col">
@@ -168,6 +168,7 @@
                                     <input type="hidden" name="sortBy" value="@Model.SortBy" />
                                     <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
                                     <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+                                    <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
                                     <button type="submit"
                                             class="btn btn-sm btn-outline-success">
                                         Markér som brugt
@@ -180,6 +181,61 @@
             </tbody>
         </table>
     </div>
+        @if (Model.TotalPages > 1)
+{
+    <nav aria-label="Sidenavigation" class="mt-3">
+        <div class="d-flex flex-column flex-sm-row
+                    justify-content-between align-items-center gap-3">
+
+            <span class="text-body-secondary small">
+                Side @Model.PageNumber af @Model.TotalPages
+                (@Model.TotalCount freebets)
+            </span>
+
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-page="./Index"
+                       asp-route-pageNumber="@(Model.PageNumber - 1)"
+                       asp-route-sortBy="@Model.SortBy"
+                       asp-route-sortDescending="@Model.SortDescending"
+                       asp-route-statusFilter="@Model.StatusFilter"
+                       aria-label="Forrige side">
+                        Forrige
+                    </a>
+                </li>
+
+                @for (var currentPage = 1; currentPage <= Model.TotalPages; currentPage++)
+                {
+                    <li class="page-item @(currentPage == Model.PageNumber ? "active" : "")">
+                        <a class="page-link"
+                           asp-page="./Index"
+                           asp-route-pageNumber="@currentPage"
+                           asp-route-sortBy="@Model.SortBy"
+                           asp-route-sortDescending="@Model.SortDescending"
+                           asp-route-statusFilter="@Model.StatusFilter"
+                           aria-current="@(currentPage == Model.PageNumber ? "page" : null)">
+                            @currentPage
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-page="./Index"
+                       asp-route-pageNumber="@(Model.PageNumber + 1)"
+                       asp-route-sortBy="@Model.SortBy"
+                       asp-route-sortDescending="@Model.SortDescending"
+                       asp-route-statusFilter="@Model.StatusFilter"
+                       aria-label="Næste side">
+                        Næste
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+}
+
 </div>
 
 <div class="modal fade" id="deleteModal" tabindex="-1"
@@ -214,6 +270,8 @@
                     <input type="hidden" name="id" id="deleteFreebetId" />
                     <input type="hidden" name="sortBy" value="@Model.SortBy" />
                     <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
+                    <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                    <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
                     <button type="submit" class="btn btn-danger">
                         <span class="me-1">Slet</span>
                     </button>

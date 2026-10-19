@@ -483,3 +483,6 @@ $RECYCLE.BIN/
 
 # Covlerlet output
 FreebetTracker.Tests/coveragereport/
+
+# Project specific CSV files
+*Freebet*.csv

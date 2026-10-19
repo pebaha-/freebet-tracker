@@ -1,4 +1,5 @@
 using Azure.Data.Tables;
+using Azure.Identity;
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Services;
 
@@ -9,15 +10,17 @@ builder.Services.AddRazorPages();
 builder.Services.Configure<FreebetReminderOptions>(builder.Configuration.GetSection("FreebetReminder"));
 builder.Services.AddScoped<FreebetReminderService>();
 builder.Services.AddScoped<IEmailSender, GmailEmailSender>();
+
 builder.Services.AddSingleton(sp =>
 {
-    var connectionString = builder.Configuration[
-        "AzureStorage:ConnectionString"]
-        ?? throw new InvalidOperationException("Azure Storage connection string is not configured.");
+    var configuration = sp.GetRequiredService<IConfiguration>();
 
-    return new TableClient(connectionString, "Freebets");
+    var accountName = configuration["AzureStorage:AccountName"]
+        ?? throw new InvalidOperationException("Azure Storage account name is not configured.");
+    var endpoint = new Uri($"https://{accountName}.table.core.windows.net");
+
+    return new TableClient(endpoint, "Freebets", new DefaultAzureCredential());
 });
-
 builder.Services.AddSingleton<IFreebetRepository, FreebetTableRepository>();
 
 var app = builder.Build();

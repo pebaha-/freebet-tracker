@@ -2,6 +2,7 @@
 using Azure.Data.Tables;
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Models;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace FreebetTracker.Tests.Data;
@@ -12,13 +13,15 @@ public class FreebetTableRepositoryTests
     private const string PartitionKey = "freebets";
 
     private Mock<TableClient> _tableClientMock = null!;
+    private Mock<ILogger<FreebetTableRepository>> _loggerMock = null!;
     private FreebetTableRepository _repository = null!;
 
     [TestInitialize]
     public void Initialize()
     {
         _tableClientMock = new Mock<TableClient>();
-        _repository = new FreebetTableRepository(_tableClientMock.Object);
+        _loggerMock = new Mock<ILogger<FreebetTableRepository>>();
+        _repository = new FreebetTableRepository(_tableClientMock.Object, _loggerMock.Object);
     }
 
     [TestMethod]

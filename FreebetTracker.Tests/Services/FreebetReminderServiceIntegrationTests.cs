@@ -2,6 +2,7 @@
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FreebetTracker.Tests.Services;
@@ -24,14 +25,31 @@ public sealed class FreebetReminderServiceIntegrationTests
         var recipient = configuration["FreebetReminder:Recipient"]
             ?? throw new InvalidOperationException("Freebet reminder recipient is not configured.");
 
+        // create logger factory earlier so it can be reused
+        using var loggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder
+                .AddConsole()
+                .SetMinimumLevel(LogLevel.Information);
+        });
+
+        // create repository logger and repository
+        var repoLogger = loggerFactory.CreateLogger<FreebetTableRepository>();
         var tableClient = new TableClient(connectionString, "Freebets");
-        var repository = new FreebetTableRepository(tableClient);
+        var repository = new FreebetTableRepository(tableClient, repoLogger);
+
+        // email sender
         var emailSender = new GmailEmailSender(configuration);
+
+        // options unchanged
         var options = Options.Create(new FreebetReminderOptions
         {
             Recipient = recipient
         });
-        var service = new FreebetReminderService(repository, emailSender, options);
+
+        // create service logger and service
+        var logger = loggerFactory.CreateLogger<FreebetReminderService>();
+        var service = new FreebetReminderService(repository, emailSender, options, logger);
 
         await service.SendReminderAsync();
     }

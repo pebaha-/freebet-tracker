@@ -1,5 +1,6 @@
 ﻿using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Services;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 
@@ -12,6 +13,7 @@ public sealed class FreebetReminderServiceTests
 
     private Mock<IFreebetRepository> _repositoryMock = null!;
     private Mock<IEmailSender> _emailSenderMock = null!;
+    private Mock<ILogger<FreebetReminderService>> _loggerMock = null!;
     private FreebetReminderService _service = null!;
 
     [TestInitialize]
@@ -19,6 +21,7 @@ public sealed class FreebetReminderServiceTests
     {
         _repositoryMock = new Mock<IFreebetRepository>();
         _emailSenderMock = new Mock<IEmailSender>();
+        _loggerMock = new Mock<ILogger<FreebetReminderService>>();
 
         _service = new FreebetReminderService(
             _repositoryMock.Object,
@@ -26,7 +29,8 @@ public sealed class FreebetReminderServiceTests
             Options.Create(new FreebetReminderOptions
             {
                 Recipient = Recipient
-            }));
+            }),
+            _loggerMock.Object);
     }
 
     [TestMethod]

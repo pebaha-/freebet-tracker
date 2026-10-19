@@ -21,7 +21,7 @@ if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("APPLICATIONINSIGHT
 
 builder.Services.Configure<FreebetReminderOptions>(builder.Configuration.GetSection("FreebetReminder"));
 builder.Services.AddScoped<FreebetReminderRunner>();
-builder.Services.AddScoped<IFreebetReminderService, FreebetReminderService>();
+builder.Services.AddScoped<IFreebetReminderService>(sp => ActivatorUtilities.CreateInstance<FreebetReminderService>(sp));
 builder.Services.AddScoped<IEmailSender, GmailEmailSender>();
 builder.Services.AddSingleton(sp =>
 {

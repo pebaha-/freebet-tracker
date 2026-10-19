@@ -3,21 +3,32 @@ using Microsoft.Extensions.Logging;
 
 namespace FreebetTracker.Functions;
 
-public sealed class FreebetReminderFunction(FreebetReminderRunner reminderRunner, ILogger<FreebetReminderFunction> logger)
+public sealed class FreebetReminderFunction
 {
-    [Function("FreebetReminderFunction")]
-    public async Task Run([TimerTrigger("0 30 * * * *")] TimerInfo timer, CancellationToken cancellationToken)
+    private readonly FreebetReminderRunner _runner;
+    private readonly ILogger<FreebetReminderFunction> _logger;
+
+    public FreebetReminderFunction(FreebetReminderRunner runner, ILogger<FreebetReminderFunction> logger)
     {
-        var utcTime = DateTimeOffset.UtcNow;
-        var danishTime = TimeZoneInfo.ConvertTime(utcTime, TimeZoneInfo.FindSystemTimeZoneById("Europe/Copenhagen"));
+        _runner = runner;
+        _logger = logger;
+    }
 
-        logger.LogInformation("Freebet reminder timer triggered at {DanishTime}.", danishTime);
+    [Function(nameof(FreebetReminderFunction))]
+    public async Task Run([TimerTrigger("0 30 * * * *")] TimerInfo timer)
+    {
+        _logger.LogInformation("Freebet reminder timer triggered at {Time}.", DateTimeOffset.Now);
 
-        if (!DanishReminderSchedule.ShouldRunAt(utcTime))
+        try
         {
-            return;
-        }
+            await _runner.RunAsync();
 
-        await reminderRunner.RunAsync(cancellationToken);
+            _logger.LogInformation("Freebet reminder runner completed successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Freebet reminder runner failed.");
+            throw;
+        }
     }
 }

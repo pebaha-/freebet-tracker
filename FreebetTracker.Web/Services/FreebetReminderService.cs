@@ -4,16 +4,24 @@ using Microsoft.Extensions.Options;
 
 namespace FreebetTracker.Web.Services;
 
-public sealed class FreebetReminderService(IFreebetRepository repository, IEmailSender emailSender, IOptions<FreebetReminderOptions> options) : IFreebetReminderService
+public sealed class FreebetReminderService(IFreebetRepository repository, IEmailSender emailSender, IOptions<FreebetReminderOptions> options, ILogger<FreebetReminderService> logger) : IFreebetReminderService
 {
     public async Task SendReminderAsync(CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Fetching freebets from the repository.");
+
         var freebets = await repository.GetAllAsync(cancellationToken);
+
+        logger.LogInformation("Fetched {FreebetCount} freebets from the repository.", freebets.Count);
+
         var selected = FreebetService.SelectForReminder(freebets);
+
+        logger.LogInformation("Selected {SelectedCount} freebets for reminders.", selected.Count);
 
         // Undlad at sende en tom påmindelsesmail.
         if (selected.Count == 0)
         {
+            logger.LogInformation("No freebets require a reminder. No email will be sent.");
             return;
         }
 
@@ -27,15 +35,20 @@ public sealed class FreebetReminderService(IFreebetRepository repository, IEmail
         var subject = "Freebet-påmindelser";
         var body = BuildEmailBody(selected);
 
+        logger.LogInformation("Sending reminder email containing {SelectedCount} freebets.", selected.Count);
+
         await emailSender.SendAsync(recipient, subject, body, cancellationToken);
+
+        logger.LogInformation("Reminder email sent successfully.");
     }
 
     private static string BuildEmailBody(IReadOnlyList<Freebet> freebets)
     {
         var culture = CultureInfo.GetCultureInfo("da-DK");
+
         var lines = new List<string>
         {
-            "Her er dine freebets, der kræver opmærksomhed:",
+            "Her er de af dine freebets, der udløber som de næste:",
             string.Empty
         };
 

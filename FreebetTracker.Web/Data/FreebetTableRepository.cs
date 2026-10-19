@@ -5,7 +5,7 @@ using FreebetTracker.Web.Services;
 
 namespace FreebetTracker.Web.Data;
 
-public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRepository
+public sealed class FreebetTableRepository(TableClient tableClient, ILogger<FreebetTableRepository> logger) : IFreebetRepository
 {
     private const string PartitionKey = "freebets";
 
@@ -13,12 +13,23 @@ public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRe
     {
         var freebets = new List<Freebet>();
 
-        await foreach (var entity in tableClient.QueryAsync<TableEntity>(filter: $"PartitionKey eq '{PartitionKey}'", cancellationToken: cancellationToken))
+        try
         {
-            freebets.Add(FreebetTableEntityMapper.MapToFreebet(entity));
-        }
+            await foreach (var entity in tableClient.QueryAsync<TableEntity>(filter: $"PartitionKey eq '{PartitionKey}'", cancellationToken: cancellationToken))
+            {
+                logger.LogInformation("Received a table entity.");
+                freebets.Add(FreebetTableEntityMapper.MapToFreebet(entity));
+            }
 
-        return freebets;
+            logger.LogInformation("Azure Table Storage query completed. Count={Count}.", freebets.Count);
+
+            return freebets;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "DIAGNOSTIC: Azure Table Storage query failed.");
+            throw;
+        }
     }
 
     public async Task<Freebet?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
@@ -53,10 +64,6 @@ public sealed class FreebetTableRepository(TableClient tableClient) : IFreebetRe
         {
             throw new InvalidOperationException($"Freebet with ID '{freebet.Id}' was not found.");
         }
-
-        var expiryChanged =
-            existing.ExpiryDate != freebet.ExpiryDate ||
-            existing.ExpiryTimeSpecified != freebet.ExpiryTimeSpecified;
 
         var entity = FreebetTableEntityMapper.MapToEntity(freebet);
 

@@ -2,6 +2,7 @@ using Azure.Data.Tables;
 using Azure.Identity;
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Services;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,11 @@ builder.Services.AddSingleton(sp =>
 });
 
 builder.Services.AddSingleton<IFreebetRepository, FreebetTableRepository>();
+
+var culture = new CultureInfo("da-DK");
+
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var app = builder.Build();
 

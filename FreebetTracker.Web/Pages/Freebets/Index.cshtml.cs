@@ -1,4 +1,3 @@
-
 using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -44,9 +43,10 @@ public class IndexModel(IFreebetRepository repository) : PageModel
     {
         StatusFilter = statusFilter?.ToLowerInvariant() switch
         {
+            "all" => "All",
             "unused" => "Unused",
             "used" => "Used",
-            _ => "All"
+            _ => "Unused"
         };
 
         SortBy = sortBy?.ToLowerInvariant() switch

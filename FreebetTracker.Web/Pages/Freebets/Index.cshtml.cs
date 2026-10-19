@@ -21,6 +21,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
     public int TotalPages { get; private set; } = 1;
 
+    public int FilteredCount { get; private set; }
+
     public int TotalCount { get; private set; }
 
     public bool NextSortDescending(string column)
@@ -64,6 +66,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         var freebets = await repository.GetAllAsync(cancellationToken);
 
+        TotalCount = freebets.Count();
+
         var filteredFreebets = StatusFilter switch
         {
             "Unused" => freebets.Where(f => !f.IsUsed),
@@ -102,8 +106,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         var sortedList = sorted.ToList();
 
-        TotalCount = freebets.Count;
-        TotalPages = Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
+        FilteredCount = filteredFreebets.Count();
+        TotalPages = Math.Max(1, (int)Math.Ceiling(FilteredCount / (double)PageSize));
 
         PageNumber = Math.Clamp(pageNumber, 1, TotalPages);
 

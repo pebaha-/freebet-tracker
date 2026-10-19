@@ -2,6 +2,7 @@
 using Azure.Data.Tables;
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -14,6 +15,7 @@ public class FreebetTableRepositoryTests
 
     private Mock<TableClient> _tableClientMock = null!;
     private Mock<ILogger<FreebetTableRepository>> _loggerMock = null!;
+    private MemoryCache _cache = null!;
     private FreebetTableRepository _repository = null!;
 
     [TestInitialize]
@@ -21,7 +23,8 @@ public class FreebetTableRepositoryTests
     {
         _tableClientMock = new Mock<TableClient>();
         _loggerMock = new Mock<ILogger<FreebetTableRepository>>();
-        _repository = new FreebetTableRepository(_tableClientMock.Object, _loggerMock.Object);
+        _cache = new MemoryCache(new MemoryCacheOptions());
+        _repository = new FreebetTableRepository(_tableClientMock.Object, _loggerMock.Object, _cache);
     }
 
     [TestMethod]

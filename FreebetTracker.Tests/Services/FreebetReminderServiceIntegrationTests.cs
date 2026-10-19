@@ -1,6 +1,7 @@
 ﻿using Azure.Data.Tables;
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -36,7 +37,8 @@ public sealed class FreebetReminderServiceIntegrationTests
         // create repository logger and repository
         var repoLogger = loggerFactory.CreateLogger<FreebetTableRepository>();
         var tableClient = new TableClient(connectionString, "Freebets");
-        var repository = new FreebetTableRepository(tableClient, repoLogger);
+        var memoryCache = new MemoryCache(new MemoryCacheOptions());
+        var repository = new FreebetTableRepository(tableClient, repoLogger, memoryCache);
 
         // email sender
         var emailSender = new GmailEmailSender(configuration);

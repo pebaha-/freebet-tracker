@@ -6,6 +6,7 @@ using FreebetTracker.Web.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
+builder.Services.AddMemoryCache();
 builder.Services.Configure<FreebetReminderOptions>(builder.Configuration.GetSection("FreebetReminder"));
 
 builder.Services.AddScoped<FreebetReminderService>();

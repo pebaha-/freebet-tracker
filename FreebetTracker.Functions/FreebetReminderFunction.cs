@@ -17,6 +17,11 @@ public sealed class FreebetReminderFunction
     [Function(nameof(FreebetReminderFunction))]
     public async Task Run([TimerTrigger("0 30 * * * *")] TimerInfo timer)
     {
+        if (!DanishReminderSchedule.ShouldRunAt(DateTimeOffset.UtcNow))
+        {
+            return;
+        }
+
         _logger.LogInformation("Freebet reminder timer triggered at {Time}.", DateTimeOffset.Now);
 
         try

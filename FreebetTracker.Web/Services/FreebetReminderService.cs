@@ -1,6 +1,7 @@
-﻿using System.Globalization;
-using FreebetTracker.Web.Models;
+﻿using FreebetTracker.Web.Models;
 using Microsoft.Extensions.Options;
+using System.Globalization;
+using System.Net;
 
 namespace FreebetTracker.Web.Services;
 
@@ -42,31 +43,55 @@ public sealed class FreebetReminderService(IFreebetRepository repository, IEmail
         logger.LogInformation("Reminder email sent successfully.");
     }
 
+
     private static string BuildEmailBody(IReadOnlyList<Freebet> freebets)
     {
         var culture = CultureInfo.GetCultureInfo("da-DK");
+        var html = new System.Text.StringBuilder();
 
-        var lines = new List<string>
-        {
-            "Her er de af dine freebets, der udløber som de næste:",
-            string.Empty
-        };
+        html.Append("""
+        <!DOCTYPE html>
+        <html lang="da">
+        <head>
+            <meta charset="utf-8">
+        </head>
+        <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.5;">
+            <p>Her er de af dine freebets, der udløber som de næste:</p>
+            <table style="border-collapse: collapse; width: 100%; max-width: 900px;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Konto</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Spiller</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">Beløb</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Udløber</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Vilkår</th>
+                    </tr>
+                </thead>
+                <tbody>
+        """);
 
         foreach (var freebet in freebets)
         {
-            lines.Add($"Konto: {freebet.Account}");
-            lines.Add($"Spiller: {freebet.Player}");
-            lines.Add($"Beløb: {freebet.Amount.ToString("N2", culture)} kr.");
-            lines.Add($"Udløber: {freebet.ExpiryDate.ToString("dd-MM-yyyy HH:mm", culture)}");
+            var expiryFormat = freebet.ExpiryTimeSpecified
+                ? "dd-MM-yyyy HH:mm"
+                : "dd-MM-yyyy";
 
-            if (!string.IsNullOrWhiteSpace(freebet.Terms))
-            {
-                lines.Add($"Vilkår: {freebet.Terms}");
-            }
-
-            lines.Add(string.Empty);
+            html.Append("<tr>");
+            html.Append($"<td style=\"border: 1px solid #ddd; padding: 10px;\">{WebUtility.HtmlEncode(freebet.Account)}</td>");
+            html.Append($"<td style=\"border: 1px solid #ddd; padding: 10px;\">{WebUtility.HtmlEncode(freebet.Player)}</td>");
+            html.Append($"<td style=\"border: 1px solid #ddd; padding: 10px; text-align: right; white-space: nowrap;\">{freebet.Amount.ToString("N2", culture)} kr.</td>");
+            html.Append($"<td style=\"border: 1px solid #ddd; padding: 10px; white-space: nowrap;\">{freebet.ExpiryDate.ToString(expiryFormat, culture)}</td>");
+            html.Append($"<td style=\"border: 1px solid #ddd; padding: 10px;\">{WebUtility.HtmlEncode(freebet.Terms ?? string.Empty)}</td>");
+            html.Append("</tr>");
         }
 
-        return string.Join(Environment.NewLine, lines);
+        html.Append("""
+                </tbody>
+            </table>
+        </body>
+        </html>
+        """);
+
+        return html.ToString();
     }
 }

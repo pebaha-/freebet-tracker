@@ -20,7 +20,7 @@ public sealed class GmailEmailSender(IConfiguration configuration) : IEmailSende
         message.From.Add(MailboxAddress.Parse(email));
         message.To.Add(MailboxAddress.Parse(recipient));
         message.Subject = subject;
-        message.Body = new TextPart("plain")
+        message.Body = new TextPart("html")
         {
             Text = body
         };

@@ -62,8 +62,8 @@ public sealed class FreebetReminderServiceTests
                 Recipient,
                 "Freebet-påmindelser",
                 It.Is<string>(body =>
-                    body.Contains("Konto: Bet365") &&
-                    body.Contains("Spiller: Peter") &&
+                    body.Contains("Bet365") &&
+                    body.Contains("Peter") &&
                     body.Contains("100,00 kr.") &&
                     body.Contains("Minimum odds 2.00")),
                 It.IsAny<CancellationToken>()),

@@ -73,6 +73,8 @@ public class CreateModel(IFreebetRepository repository) : PageModel
 
         await repository.AddAsync(freebet, cancellationToken);
 
+        TempData["SuccessMessage"] = "Freebet er oprettet.";
+
         return RedirectToPage("./Index");
     }
 }

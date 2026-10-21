@@ -132,6 +132,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         await repository.DeleteAsync(existing, cancellationToken);
 
+        TempData["SuccessMessage"] = "Freebet er slettet";
+
         return RedirectToPage("./Index", new { sortBy, sortDescending, statusFilter, pageNumber });
     }
 

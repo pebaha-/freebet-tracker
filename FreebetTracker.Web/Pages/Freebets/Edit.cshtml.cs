@@ -108,6 +108,8 @@ public class EditModel(IFreebetRepository repository) : PageModel
 
         await repository.UpdateAsync(freebet, cancellationToken);
 
+        TempData["SuccessMessage"] = "Ændringerne er gemt";
+
         return RedirectToPage("./Index");
     }
 }

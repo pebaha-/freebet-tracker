@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Data.Tables;
 using Azure.Identity;
 using FreebetTracker.Web.Data;
@@ -13,6 +14,15 @@ builder.Services.Configure<FreebetReminderOptions>(builder.Configuration.GetSect
 builder.Services.AddScoped<FreebetReminderService>();
 builder.Services.AddScoped<IEmailSender, GmailEmailSender>();
 
+builder.Services.AddSingleton<TokenCredential>(_ =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        return new AzureCliCredential();
+    }
+    return new ManagedIdentityCredential(ManagedIdentityId.SystemAssigned);
+});
+
 builder.Services.AddSingleton(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
@@ -22,7 +32,7 @@ builder.Services.AddSingleton(sp =>
 
     var endpoint = new Uri($"https://{accountName}.table.core.windows.net");
 
-    return new TableClient(endpoint, "Freebets", new DefaultAzureCredential());
+    return new TableClient(endpoint, "Freebets", sp.GetRequiredService<TokenCredential>());
 });
 
 builder.Services.AddSingleton<IFreebetRepository, FreebetTableRepository>();

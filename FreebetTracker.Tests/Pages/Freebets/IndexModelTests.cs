@@ -1,7 +1,10 @@
 ﻿using FreebetTracker.Tests.Fakes;
 using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Pages.Freebets;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
 
 namespace FreebetTracker.Tests.Pages.Freebets;
 
@@ -62,6 +65,8 @@ public sealed class IndexModelTests
         var freebet = CreateFreebet("test-id", DateTime.Today.AddDays(7));
         repository.Freebets.Add(freebet);
         var model = new IndexModel(repository);
+        var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
+        model.TempData = tempData;
 
         var result = await model.OnPostDeleteAsync("test-id", "ExpiryDate", false, "All", 1, CancellationToken.None);
 

@@ -1,7 +1,11 @@
 ﻿using FreebetTracker.Tests.Fakes;
+using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Pages.Freebets;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
 
 namespace FreebetTracker.Tests.Pages.Freebets;
 
@@ -16,6 +20,9 @@ public sealed class CreateModelTests
     {
         _repository = new FakeFreebetRepository();
         _model = new CreateModel(_repository);
+
+        var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
+        _model.TempData = tempData;
     }
 
     [TestMethod]
@@ -68,6 +75,20 @@ public sealed class CreateModelTests
     }
 
     [TestMethod]
+    public void ToFreebet_WithoutExpiryTime_UsesEndOfDay()
+    {
+        SetValidInput();
+
+        _model.Input.ExpiryDate = new DateTime(2026, 10, 20);
+        _model.Input.ExpiryTime = null;
+
+        var freebet = _model.Input.ToFreebet();
+
+        Assert.AreEqual(new DateTime(2026, 10, 20).AddDays(1).AddTicks(-1), freebet.ExpiryDate);
+        Assert.IsFalse(freebet.ExpiryTimeSpecified);
+    }
+
+    [TestMethod]
     public async Task OnPostAsync_WithExpiryTime_CombinesDateAndTime()
     {
         SetValidInput();
@@ -114,7 +135,7 @@ public sealed class CreateModelTests
 
     private void SetValidInput()
     {
-        _model.Input = new CreateModel.InputModel
+        _model.Input = new FreebetInputModel
         {
             Player = "Peter",
             Account = "Bet365",

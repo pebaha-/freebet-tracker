@@ -6,6 +6,18 @@
 }
 
 <div class="container py-4">
+    @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="status">
+            <span class="me-1" aria-hidden="true">✓</span>
+            @Model.SuccessMessage
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Luk"></button>
+        </div>
+    }
     <div class="d-flex justify-content-between
         align-items-center mb-4">
         <div>
@@ -166,15 +178,14 @@
                             </button>
                             @if (!freebet.IsUsed)
                             {
-                                <form method="post"
-                                      asp-page-handler="MarkAsUsed"
-                                      class="d-inline">
+                                <form method="post" asp-page-handler="MarkAsUsed" class="d-inline mark-as-used-form">
                                     <input type="hidden" name="id" value="@freebet.Id" />
                                     <input type="hidden" name="sortBy" value="@Model.SortBy" />
                                     <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
                                     <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
                                     <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
-                                    <button type="submit" class="btn btn-sm btn-outline-success text-nowrap">
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-success text-nowrap mark-as-used-button">
                                         Markér som brugt
                                     </button>
                                 </form>
@@ -285,6 +296,22 @@
     </div>
 </div>
 
+<div id="busyOverlay"
+     class="position-fixed top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center"
+     style="z-index: 2000; background: rgba(255, 255, 255, 0.8);"
+     aria-live="polite"
+     aria-busy="true">
+    <div class="text-center">
+        <div class="spinner-border text-success mb-3"
+             role="status">
+            <span class="visually-hidden">Vent venligst</span>
+        </div>
+        <p id="busyMessage" class="fw-semibold mb-0">
+            Gemmer ændringen …
+        </p>
+    </div>
+</div>
+
 <script>
     document.getElementById('deleteModal')
         .addEventListener('show.bs.modal', function (event) {
@@ -296,5 +323,32 @@
             document.getElementById('deleteFreebetId').value = id;
             document.getElementById('deleteFreebetAccount').textContent =
                 account || '';
+        });
+
+    document.querySelectorAll('.mark-as-used-form')
+        .forEach(form => {
+            form.addEventListener('submit', function (event) {
+                if (form.dataset.submitting === 'true') {
+                    event.preventDefault();
+                    return;
+                }
+
+                form.dataset.submitting = 'true';
+
+                const button = form.querySelector(
+                    '.mark-as-used-button'
+                );
+
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = 'Markerer som brugt …';
+                }
+
+                document.getElementById('busyOverlay')
+                    .classList.remove('d-none');
+
+                document.getElementById('busyOverlay')
+                    .classList.add('d-flex');
+            });
         });
 </script>

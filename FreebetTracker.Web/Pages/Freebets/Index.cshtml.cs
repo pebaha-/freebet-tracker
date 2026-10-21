@@ -25,6 +25,9 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
     public int TotalCount { get; private set; }
 
+    [TempData]
+    public string? SuccessMessage { get; set; }
+
     public bool NextSortDescending(string column)
     {
         return string.Equals(SortBy, column, StringComparison.OrdinalIgnoreCase) && !SortDescending;
@@ -142,9 +145,16 @@ public class IndexModel(IFreebetRepository repository) : PageModel
         }
 
         freebet.IsUsed = true;
-
         await repository.UpdateAsync(freebet, cancellationToken);
+        await Task.Delay(1500, cancellationToken); // Simulate a delay
+        SuccessMessage = "Freebettet er markeret som brugt.";
 
-        return RedirectToPage("./Index", new { sortBy, sortDescending, statusFilter, pageNumber });
+        return RedirectToPage("./Index", new
+        {
+            sortBy,
+            sortDescending,
+            statusFilter,
+            pageNumber
+        });
     }
 }

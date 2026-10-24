@@ -6,10 +6,21 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FreebetTracker.Web.Pages.Freebets;
 
-public class EditModel(IFreebetRepository repository) : PageModel
+public class EditModel(IFreebetRepository repository, IFreebetSuggestionService suggestionService) : PageModel
 {
     [BindProperty]
     public InputModel Input { get; set; } = new();
+    public IReadOnlyList<string> PlayerSuggestions { get; private set; } = [];
+    public IReadOnlyList<string> AccountSuggestions { get; private set; } = [];
+
+    private async Task LoadSuggestionsAsync(CancellationToken cancellationToken = default)
+    {
+        var suggestions = await suggestionService.GetSuggestionsAsync(cancellationToken);
+
+        PlayerSuggestions = suggestions.PlayerSuggestions;
+        AccountSuggestions = suggestions.AccountSuggestions;
+    }
+
 
     public sealed class InputModel : FreebetInputModel
     {
@@ -41,6 +52,8 @@ public class EditModel(IFreebetRepository repository) : PageModel
             IsUsed = freebet.IsUsed
         };
 
+        await LoadSuggestionsAsync(cancellationToken);
+
         return Page();
     }
 
@@ -48,6 +61,7 @@ public class EditModel(IFreebetRepository repository) : PageModel
     {
         if (!ModelState.IsValid)
         {
+            await LoadSuggestionsAsync(cancellationToken);
             return Page();
         }
 

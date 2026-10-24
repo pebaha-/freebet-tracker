@@ -13,6 +13,7 @@ builder.Services.Configure<FreebetReminderOptions>(builder.Configuration.GetSect
 
 builder.Services.AddScoped<FreebetReminderService>();
 builder.Services.AddScoped<IEmailSender, GmailEmailSender>();
+builder.Services.AddScoped<IFreebetSuggestionService, FreebetSuggestionService>();
 
 builder.Services.AddSingleton<TokenCredential>(_ =>
 {

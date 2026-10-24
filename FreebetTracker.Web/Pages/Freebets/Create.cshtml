@@ -12,13 +12,19 @@
 
     <div class="mb-3">
         <label asp-for="Input.Player" class="form-label"></label>
-        <input asp-for="Input.Player" class="form-control" />
+        <div class="autocomplete-container" data-autocomplete data-autocomplete-options="@System.Text.Json.JsonSerializer.Serialize(Model.PlayerSuggestions)">
+            <input asp-for="Input.Player" class="form-control" data-autocomplete-input autocomplete="off" placeholder="Vælg eller indtast spiller" />
+            <ul class="autocomplete-list" data-autocomplete-list id="playerSuggestions" role="listbox" hidden></ul>
+        </div>
         <span asp-validation-for="Input.Player" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="Input.Account" class="form-label"></label>
-        <input asp-for="Input.Account" class="form-control" />
+        <div class="autocomplete-container" data-autocomplete data-autocomplete-options="@System.Text.Json.JsonSerializer.Serialize(Model.AccountSuggestions)">
+            <input asp-for="Input.Account" class="form-control" data-autocomplete-input autocomplete="off" placeholder="Vælg eller indtast konto" />
+            <ul class="autocomplete-list" data-autocomplete-list id="accountSuggestions" role="listbox" hidden></ul>
+        </div>
         <span asp-validation-for="Input.Account" class="text-danger"></span>
     </div>
 

@@ -1,6 +1,7 @@
 ﻿using FreebetTracker.Tests.Fakes;
 using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Pages.Freebets;
+using FreebetTracker.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -19,8 +20,8 @@ public sealed class EditModelTests
     public void Initialize()
     {
         _repository = new FakeFreebetRepository();
-        _model = new EditModel(_repository);
-
+        var suggestionService = new FreebetSuggestionService(_repository);
+        _model = new EditModel(_repository, suggestionService);
         var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
         _model.TempData = tempData;
     }

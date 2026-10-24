@@ -1,6 +1,7 @@
 ﻿using FreebetTracker.Tests.Fakes;
 using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Pages.Freebets;
+using FreebetTracker.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -19,8 +20,8 @@ public sealed class CreateModelTests
     public void Initialize()
     {
         _repository = new FakeFreebetRepository();
-        _model = new CreateModel(_repository);
-
+        var suggestionService = new FreebetSuggestionService(_repository);
+        _model = new CreateModel(_repository, suggestionService);
         var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
         _model.TempData = tempData;
     }
@@ -126,9 +127,9 @@ public sealed class CreateModelTests
     }
 
     [TestMethod]
-    public void OnGet_SetsExpiryDateToToday()
+    public async Task OnGet_SetsExpiryDateToToday()
     {
-        _model.OnGet();
+        await _model.OnGetAsync();
 
         Assert.AreEqual(DateTime.Today, _model.Input.ExpiryDate);
     }

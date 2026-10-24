@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore FreebetTracker.slnx
+
+      - name: Build solution
+        run: dotnet build FreebetTracker.slnx --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test FreebetTracker.slnx --configuration Release --no-build --verbosity normal

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/main_freebettracker.yml" />
     <File Path="Import-Freebets.ps1" />
   </Folder>
   <Project Path="FreebetTracker.Functions/FreebetTracker.Functions.csproj" Id="96a539d1-a6c2-447f-82b8-39f4af06c025" />

@@ -18,10 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up .NET Core
+      - name: Set up .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.x'
+          dotnet-version: '10.0.402'
+          skip-lts-prepass: true
 
       - name: Build with dotnet
         run: dotnet build --configuration Release

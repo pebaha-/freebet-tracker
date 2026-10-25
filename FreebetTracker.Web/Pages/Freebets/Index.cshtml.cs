@@ -11,7 +11,15 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
     public IReadOnlyList<Freebet> Freebets { get; private set; } = [];
 
+    public IReadOnlyList<string> AccountOptions { get; private set; } = [];
+
+    public IReadOnlyList<string> PlayerOptions { get; private set; } = [];
+
     public string StatusFilter { get; private set; } = "All";
+
+    public string AccountFilter { get; private set; } = "All";
+
+    public string PlayerFilter { get; private set; } = "All";
 
     public string SortBy { get; private set; } = "ExpiryDate";
 
@@ -43,14 +51,21 @@ public class IndexModel(IFreebetRepository repository) : PageModel
         return SortDescending ? " ▼" : " ▲";
     }
 
-    public async Task OnGetAsync(string? sortBy, bool sortDescending, string? statusFilter, int pageNumber = 1,
+
+    public async Task OnGetAsync(
+        string? sortBy,
+        bool sortDescending,
+        string? statusFilter,
+        string? accountFilter,
+        string? playerFilter,
+        int pageNumber = 1,
         CancellationToken cancellationToken = default)
     {
         StatusFilter = statusFilter?.ToLowerInvariant() switch
         {
             "all" => "All",
-            "unused" => "Unused",
             "used" => "Used",
+            "unused" => "Unused",
             _ => "Unused"
         };
 
@@ -67,17 +82,58 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         SortDescending = sortDescending;
 
-        var freebets = await repository.GetAllAsync(cancellationToken);
+        var freebets = (await repository.GetAllAsync(cancellationToken)).ToList();
 
-        TotalCount = freebets.Count();
+        TotalCount = freebets.Count;
 
-        var filteredFreebets = StatusFilter switch
+        // 1. Filtrér efter status først.
+        IEnumerable<Freebet> statusFilteredFreebets = StatusFilter switch
         {
             "Unused" => freebets.Where(f => !f.IsUsed),
             "Used" => freebets.Where(f => f.IsUsed),
             _ => freebets
         };
 
+        var statusFilteredList = statusFilteredFreebets.ToList();
+
+        // 2. Byg Konto- og Spiller-dropdowns ud fra statusfiltrerede freebets.
+        //    Filtrene påvirker ikke hinandens valgmuligheder.
+        AccountOptions = statusFilteredList
+            .Select(f => f.Account)
+            .Where(a => !string.IsNullOrWhiteSpace(a))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(a => a, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        PlayerOptions = statusFilteredList
+            .Select(f => f.Player)
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        // 3. Normalisér de valgte filtre mod de aktuelle muligheder.
+        //    Hvis et filter ikke længere findes efter statusskiftet,
+        //    falder det tilbage til "All".
+        AccountFilter = NormalizeFilter(accountFilter, AccountOptions);
+        PlayerFilter = NormalizeFilter(playerFilter, PlayerOptions);
+
+        // 4. Anvend Konto- og Spiller-filtrene.
+        IEnumerable<Freebet> filteredFreebets = statusFilteredList;
+
+        if (AccountFilter != "All")
+        {
+            filteredFreebets = filteredFreebets.Where(f =>
+                string.Equals(f.Account, AccountFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (PlayerFilter != "All")
+        {
+            filteredFreebets = filteredFreebets.Where(f =>
+                string.Equals(f.Player, PlayerFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // 5. Sortér som hidtil.
         var sorted = SortBy switch
         {
             "Account" => SortDescending
@@ -109,19 +165,38 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         var sortedList = sorted.ToList();
 
-        FilteredCount = filteredFreebets.Count();
+        // 6. Paginering.
+        FilteredCount = sortedList.Count;
         TotalPages = Math.Max(1, (int)Math.Ceiling(FilteredCount / (double)PageSize));
-
         PageNumber = Math.Clamp(pageNumber, 1, TotalPages);
 
-        Freebets = [..
-                sortedList
-                .Skip((PageNumber - 1) * PageSize)
-                .Take(PageSize)
-            ];
+        Freebets =
+        [
+            .. sortedList
+            .Skip((PageNumber - 1) * PageSize)
+            .Take(PageSize)
+        ];
     }
 
-    public async Task<IActionResult> OnPostDeleteAsync(string id, string? sortBy, bool sortDescending, string? statusFilter, int pageNumber = 1, CancellationToken cancellationToken = default)
+    private static string NormalizeFilter(string? filter, IReadOnlyList<string> options)
+    {
+        if (string.IsNullOrWhiteSpace(filter) || string.Equals(filter, "All", StringComparison.OrdinalIgnoreCase))
+        {
+            return "All";
+        }
+
+        return options.FirstOrDefault(option => string.Equals(option, filter, StringComparison.OrdinalIgnoreCase)) ?? "All";
+    }
+
+    public async Task<IActionResult> OnPostDeleteAsync(
+        string id,
+        string? sortBy,
+        bool sortDescending,
+        string? statusFilter,
+        string? accountFilter,
+        string? playerFilter,
+        int pageNumber = 1,
+        CancellationToken cancellationToken = default)
     {
         var existing = await repository.GetByIdAsync(id, cancellationToken);
 
@@ -134,10 +209,26 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         TempData["SuccessMessage"] = "Freebet er slettet";
 
-        return RedirectToPage("./Index", new { sortBy, sortDescending, statusFilter, pageNumber });
+        return RedirectToPage("./Index", new
+        {
+            sortBy,
+            sortDescending,
+            statusFilter,
+            accountFilter,
+            playerFilter,
+            pageNumber
+        });
     }
 
-    public async Task<IActionResult> OnPostMarkAsUsedAsync(string id, string? sortBy, bool sortDescending, string? statusFilter, int pageNumber = 1, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> OnPostMarkAsUsedAsync(
+        string id,
+        string? sortBy,
+        bool sortDescending,
+        string? statusFilter,
+        string? accountFilter,
+        string? playerFilter,
+        int pageNumber = 1,
+        CancellationToken cancellationToken = default)
     {
         var freebet = await repository.GetByIdAsync(id, cancellationToken);
 
@@ -148,7 +239,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
 
         freebet.IsUsed = true;
         await repository.UpdateAsync(freebet, cancellationToken);
-        await Task.Delay(1500, cancellationToken); // Simulate a delay
+        await Task.Delay(1500, cancellationToken);
+
         SuccessMessage = "Freebettet er markeret som brugt.";
 
         return RedirectToPage("./Index", new
@@ -156,6 +248,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
             sortBy,
             sortDescending,
             statusFilter,
+            accountFilter,
+            playerFilter,
             pageNumber
         });
     }

@@ -24,7 +24,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "early", "middle", "late" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -35,7 +35,7 @@ public sealed class IndexModelTests
         var repository = new FakeFreebetRepository();
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsNotNull(model.Freebets);
         Assert.HasCount(0, model.Freebets);
@@ -53,7 +53,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "late", "early" }, repository.Freebets.Select(f => f.Id).ToArray());
     }
@@ -68,7 +68,7 @@ public sealed class IndexModelTests
         var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
         model.TempData = tempData;
 
-        var result = await model.OnPostDeleteAsync("test-id", "ExpiryDate", false, "All", 1, CancellationToken.None);
+        var result = await model.OnPostDeleteAsync("test-id", "ExpiryDate", false, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsInstanceOfType<RedirectToPageResult>(result);
 
@@ -84,7 +84,7 @@ public sealed class IndexModelTests
         var repository = new FakeFreebetRepository();
         var model = new IndexModel(repository);
 
-        var result = await model.OnPostDeleteAsync("missing-id", "ExpiryDate", false, "All", 1, CancellationToken.None);
+        var result = await model.OnPostDeleteAsync("missing-id", "ExpiryDate", false, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsInstanceOfType<NotFoundResult>(result);
         Assert.HasCount(0, repository.Freebets);
@@ -103,7 +103,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Amount", false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Amount", false, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(
             new[] { "low", "middle", "high" },
@@ -124,7 +124,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Amount", true, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Amount", true, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "high", "middle", "low" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -142,7 +142,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Account", false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Account", false, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "b", "a", "c" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -160,7 +160,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Account", true, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Account", true, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "c", "a", "b" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -178,7 +178,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Player", false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Player", false, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "a", "b", "c" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -196,7 +196,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Player", true, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Player", true, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "c", "b", "a" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -214,7 +214,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Terms", false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Terms", false, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "a", "m", "z" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -232,7 +232,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Terms", true, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Terms", true, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "z", "m", "a" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -250,7 +250,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("Terms", false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Terms", false, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "without-terms", "other-terms", "with-terms" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -267,7 +267,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("IsUsed", false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("IsUsed", false, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "unused", "used" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -284,7 +284,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("IsUsed", true, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("IsUsed", true, "All", null, null, 1, CancellationToken.None);
 
         CollectionAssert.AreEqual(new[] { "used", "unused" }, model.Freebets.Select(f => f.Id).ToArray());
     }
@@ -301,7 +301,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("UnknownColumn", false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("UnknownColumn", false, "All", null, null, 1, CancellationToken.None);
 
         Assert.AreEqual("ExpiryDate", model.SortBy);
         CollectionAssert.AreEqual(new[] { "early", "late" }, model.Freebets.Select(f => f.Id).ToArray());
@@ -319,7 +319,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", false, "Unused", 1, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", false, "Unused", null, null, 1, CancellationToken.None);
 
         Assert.AreEqual("Unused", model.StatusFilter);
         CollectionAssert.AreEqual(new[] { "unused" }, model.Freebets.Select(f => f.Id).ToArray());
@@ -337,7 +337,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", false, "Used", 1, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", false, "Used", null, null, 1, CancellationToken.None);
 
         Assert.AreEqual("Used", model.StatusFilter);
         CollectionAssert.AreEqual(new[] { "used" }, model.Freebets.Select(f => f.Id).ToArray());
@@ -354,7 +354,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", false, "UNUSED", 1, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", false, "UNUSED", null, null, 1, CancellationToken.None);
 
         Assert.AreEqual("Unused", model.StatusFilter);
         Assert.HasCount(1, model.Freebets);
@@ -372,7 +372,7 @@ public sealed class IndexModelTests
 
         var model = new IndexModel(repository);
 
-        await model.OnGetAsync("ExpiryDate", false, "invalid", 1, CancellationToken.None);
+        await model.OnGetAsync("ExpiryDate", false, "invalid", null, null, 1, CancellationToken.None);
 
         Assert.AreEqual("Unused", model.StatusFilter);
         Assert.HasCount(1, model.Freebets);
@@ -391,7 +391,7 @@ public sealed class IndexModelTests
     {
         var model = new IndexModel(new FakeFreebetRepository());
 
-        await model.OnGetAsync("Amount", true, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Amount", true, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsFalse(model.NextSortDescending("Amount"));
     }
@@ -401,7 +401,7 @@ public sealed class IndexModelTests
     {
         var model = new IndexModel(new FakeFreebetRepository());
 
-        await model.OnGetAsync("Amount", true, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Amount", true, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsFalse(model.NextSortDescending("Account"));
     }
@@ -411,11 +411,11 @@ public sealed class IndexModelTests
     {
         var model = new IndexModel(new FakeFreebetRepository());
 
-        await model.OnGetAsync("Amount", false, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Amount", false, "All", null, null, 1, CancellationToken.None);
         Assert.AreEqual(" ▲", model.SortIndicator("Amount"));
         Assert.AreEqual(string.Empty, model.SortIndicator("Account"));
 
-        await model.OnGetAsync("Amount", true, "All", 1, CancellationToken.None);
+        await model.OnGetAsync("Amount", true, "All", null, null, 1, CancellationToken.None);
         Assert.AreEqual(" ▼", model.SortIndicator("Amount"));
     }
 
@@ -427,7 +427,7 @@ public sealed class IndexModelTests
         repository.Freebets.Add(freebet);
 
         var model = new IndexModel(repository);
-        var result = await model.OnPostMarkAsUsedAsync("test-id", "Amount", true, "All", 1, CancellationToken.None);
+        var result = await model.OnPostMarkAsUsedAsync("test-id", "Amount", true, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsInstanceOfType<RedirectToPageResult>(result);
 
@@ -445,7 +445,7 @@ public sealed class IndexModelTests
     {
         var repository = new FakeFreebetRepository();
         var model = new IndexModel(repository);
-        var result = await model.OnPostMarkAsUsedAsync("missing-id", "ExpiryDate", false, "All", 1, CancellationToken.None);
+        var result = await model.OnPostMarkAsUsedAsync("missing-id", "ExpiryDate", false, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsInstanceOfType<NotFoundResult>(result);
     }

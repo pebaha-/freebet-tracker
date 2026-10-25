@@ -45,29 +45,91 @@
             </colgroup>
             <thead class="table-light">
                 <tr>
+
                     <th scope="col">
-                        <a asp-page="./Index"
-                           asp-route-sortBy="Account"
-                           asp-route-sortDescending="@Model.NextSortDescending("Account")"
-                           asp-route-statusFilter="@Model.StatusFilter"
-                           class="text-decoration-none text-reset">
-                            Konto @Model.SortIndicator("Account")
-                        </a>
+                        <div class="d-flex flex-column gap-1">
+                            <a asp-page="./Index"
+                               asp-route-sortBy="Account"
+                               asp-route-sortDescending="@Model.NextSortDescending("Account")"
+                               asp-route-statusFilter="@Model.StatusFilter"
+                               asp-route-accountFilter="@Model.AccountFilter"
+                               asp-route-playerFilter="@Model.PlayerFilter"
+                               class="text-decoration-none text-reset">
+                                Konto @Model.SortIndicator("Account")
+                            </a>
+
+                            <form method="get" class="m-0">
+                                <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                                <input type="hidden" name="sortDescending"
+                                       value="@Model.SortDescending.ToString().ToLowerInvariant()" />
+                                <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+                                <input type="hidden" name="playerFilter" value="@Model.PlayerFilter" />
+
+                                <select name="accountFilter"
+                                        class="form-select form-select-sm"
+                                        aria-label="Filtrér efter konto"
+                                        onchange="this.form.submit()">
+                                    <option value="All"
+                                            selected="@(Model.AccountFilter == "All")">
+                                        Alle konti
+                                    </option>
+                                    @foreach (var account in Model.AccountOptions)
+                                    {
+                                        <option value="@account"
+                                                selected="@(Model.AccountFilter == account)">
+                                            @account
+                                        </option>
+                                    }
+                                </select>
+                            </form>
+                        </div>
                     </th>
+
                     <th scope="col">
-                        <a asp-page="./Index"
-                           asp-route-sortBy="Player"
-                           asp-route-sortDescending="@Model.NextSortDescending("Player")"
-                           asp-route-statusFilter="@Model.StatusFilter"
-                           class="text-decoration-none text-reset">
-                            Spiller @Model.SortIndicator("Player")
-                        </a>
+                        <div class="d-flex flex-column gap-1">
+                            <a asp-page="./Index"
+                               asp-route-sortBy="Player"
+                               asp-route-sortDescending="@Model.NextSortDescending("Player")"
+                               asp-route-statusFilter="@Model.StatusFilter"
+                               asp-route-accountFilter="@Model.AccountFilter"
+                               asp-route-playerFilter="@Model.PlayerFilter"
+                               class="text-decoration-none text-reset">
+                                Spiller @Model.SortIndicator("Player")
+                            </a>
+
+                            <form method="get" class="m-0">
+                                <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                                <input type="hidden" name="sortDescending"
+                                       value="@Model.SortDescending.ToString().ToLowerInvariant()" />
+                                <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+                                <input type="hidden" name="accountFilter" value="@Model.AccountFilter" />
+
+                                <select name="playerFilter"
+                                        class="form-select form-select-sm"
+                                        aria-label="Filtrér efter spiller"
+                                        onchange="this.form.submit()">
+                                    <option value="All"
+                                            selected="@(Model.PlayerFilter == "All")">
+                                        Alle spillere
+                                    </option>
+                                    @foreach (var player in Model.PlayerOptions)
+                                    {
+                                        <option value="@player"
+                                                selected="@(Model.PlayerFilter == player)">
+                                            @player
+                                        </option>
+                                    }
+                                </select>
+                            </form>
+                        </div>
                     </th>
                     <th scope="col" class="text-end">
                         <a asp-page="./Index"
                            asp-route-sortBy="Amount"
                            asp-route-sortDescending="@Model.NextSortDescending("Amount")"
                            asp-route-statusFilter="@Model.StatusFilter"
+                           asp-route-accountFilter="@Model.AccountFilter"
+                           asp-route-playerFilter="@Model.PlayerFilter"
                            class="text-decoration-none text-reset">
                             Værdi @Model.SortIndicator("Amount")
                         </a>
@@ -77,6 +139,8 @@
                            asp-route-sortBy="ExpiryDate"
                            asp-route-sortDescending="@Model.NextSortDescending("ExpiryDate")"
                            asp-route-statusFilter="@Model.StatusFilter"
+                           asp-route-accountFilter="@Model.AccountFilter"
+                           asp-route-playerFilter="@Model.PlayerFilter"
                            class="text-decoration-none text-reset">
                             Udløbsdato @Model.SortIndicator("ExpiryDate")
                         </a>
@@ -86,40 +150,42 @@
                            asp-route-sortBy="Terms"
                            asp-route-sortDescending="@Model.NextSortDescending("Terms")"
                            asp-route-statusFilter="@Model.StatusFilter"
+                           asp-route-accountFilter="@Model.AccountFilter"
+                           asp-route-playerFilter="@Model.PlayerFilter"
                            class="text-decoration-none text-reset">
                             Vilkår @Model.SortIndicator("Terms")
                         </a>
                     </th>
+
                     <th scope="col">
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex flex-column gap-1">
                             <a asp-page="./Index"
                                asp-route-sortBy="IsUsed"
                                asp-route-sortDescending="@Model.NextSortDescending("IsUsed")"
                                asp-route-statusFilter="@Model.StatusFilter"
+                               asp-route-accountFilter="@Model.AccountFilter"
+                               asp-route-playerFilter="@Model.PlayerFilter"
                                class="text-decoration-none text-reset">
                                 Status @Model.SortIndicator("IsUsed")
                             </a>
 
                             <form method="get" class="m-0">
-                                <input type="hidden" name="sortBy"
-                                       value="@Model.SortBy" />
-                                <input type="hidden" name="sortDescending"
-                                       value="@Model.SortDescending.ToString().ToLowerInvariant()" />
+                                <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                                <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
+                                <input type="hidden" name="accountFilter" value="@Model.AccountFilter" />
+                                <input type="hidden" name="playerFilter" value="@Model.PlayerFilter" />
 
                                 <select name="statusFilter"
                                         class="form-select form-select-sm"
                                         aria-label="Filtrér efter status"
                                         onchange="this.form.submit()">
-                                    <option value="All"
-                                            selected="@(Model.StatusFilter == "All")">
+                                    <option value="All" selected="@(Model.StatusFilter == "All")">
                                         Alle
                                     </option>
-                                    <option value="Unused"
-                                            selected="@(Model.StatusFilter == "Unused")">
+                                    <option value="Unused" selected="@(Model.StatusFilter == "Unused")">
                                         Ubrugte
                                     </option>
-                                    <option value="Used"
-                                            selected="@(Model.StatusFilter == "Used")">
+                                    <option value="Used" selected="@(Model.StatusFilter == "Used")">
                                         Brugte
                                     </option>
                                 </select>
@@ -183,6 +249,8 @@
                                     <input type="hidden" name="sortBy" value="@Model.SortBy" />
                                     <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
                                     <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+                                    <input type="hidden" name="accountFilter" value="@Model.AccountFilter" />
+                                    <input type="hidden" name="playerFilter" value="@Model.PlayerFilter" />
                                     <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
                                     <button type="submit"
                                             class="btn btn-sm btn-outline-success text-nowrap mark-as-used-button">
@@ -215,6 +283,8 @@
                            asp-route-sortBy="@Model.SortBy"
                            asp-route-sortDescending="@Model.SortDescending"
                            asp-route-statusFilter="@Model.StatusFilter"
+                           asp-route-accountFilter="@Model.AccountFilter"
+                           asp-route-playerFilter="@Model.PlayerFilter"
                            aria-label="Forrige side">
                             Forrige
                         </a>
@@ -229,6 +299,8 @@
                                asp-route-sortBy="@Model.SortBy"
                                asp-route-sortDescending="@Model.SortDescending"
                                asp-route-statusFilter="@Model.StatusFilter"
+                               asp-route-accountFilter="@Model.AccountFilter"
+                               asp-route-playerFilter="@Model.PlayerFilter"
                                aria-current="@(currentPage == Model.PageNumber ? "page" : null)">
                                 @currentPage
                             </a>
@@ -242,6 +314,8 @@
                            asp-route-sortBy="@Model.SortBy"
                            asp-route-sortDescending="@Model.SortDescending"
                            asp-route-statusFilter="@Model.StatusFilter"
+                           asp-route-accountFilter="@Model.AccountFilter"
+                           asp-route-playerFilter="@Model.PlayerFilter"
                            aria-label="Næste side">
                             Næste
                         </a>
@@ -287,6 +361,8 @@
                     <input type="hidden" name="sortDescending" value="@Model.SortDescending.ToString().ToLowerInvariant()" />
                     <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
                     <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+                    <input type="hidden" name="accountFilter" value="@Model.AccountFilter" />
+                    <input type="hidden" name="playerFilter" value="@Model.PlayerFilter" />
                     <button type="submit" class="btn btn-danger">
                         <span class="me-1">Slet</span>
                     </button>

@@ -37,6 +37,7 @@ builder.Services.AddSingleton(sp =>
 });
 
 builder.Services.AddSingleton<IFreebetRepository, FreebetTableRepository>();
+builder.Services.AddSingleton<IReminderPauseStore, TableReminderPauseStore>();
 
 var culture = new CultureInfo("da-DK");
 

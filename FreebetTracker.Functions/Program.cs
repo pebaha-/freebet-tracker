@@ -33,5 +33,6 @@ builder.Services.AddSingleton(sp =>
     return new TableClient(connectionString, "Freebets");
 });
 builder.Services.AddSingleton<IFreebetRepository, FreebetTableRepository>();
+builder.Services.AddSingleton<IReminderPauseStore, TableReminderPauseStore>();
 
 builder.Build().Run();

@@ -34,3 +34,12 @@ body {
     width: 100%;
     table-layout: fixed;
 }
+
+.collapse-chevron {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+button[aria-expanded="true"] .collapse-chevron {
+    transform: rotate(180deg);
+}

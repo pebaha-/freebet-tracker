@@ -1,6 +1,8 @@
-﻿using FreebetTracker.Tests.Fakes;
+﻿using Azure.Data.Tables;
+using FreebetTracker.Tests.Fakes;
 using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Pages.Freebets;
+using FreebetTracker.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -15,6 +17,7 @@ public sealed class IndexModelTests
     public async Task OnGetAsync_SortsFreebetsByExpiryDateAscending()
     {
         var repository = new FakeFreebetRepository();
+        var reminderPauseStore = new FakeReminderPauseStore();
         repository.Freebets.AddRange(
         [
             CreateFreebet("late", new DateTime(2026, 10, 25)),
@@ -22,7 +25,7 @@ public sealed class IndexModelTests
             CreateFreebet("middle", new DateTime(2026, 10, 21))
         ]);
 
-        var model = new IndexModel(repository);
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", null, null, 1, CancellationToken.None);
 
@@ -33,7 +36,8 @@ public sealed class IndexModelTests
     public async Task OnGetAsync_WhenNoFreebetsExist_ReturnsEmptyList()
     {
         var repository = new FakeFreebetRepository();
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", null, null, 1, CancellationToken.None);
 
@@ -51,7 +55,8 @@ public sealed class IndexModelTests
             CreateFreebet("early", new DateTime(2026, 10, 18))
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("ExpiryDate", sortDescending: false, "All", null, null, 1, CancellationToken.None);
 
@@ -64,7 +69,8 @@ public sealed class IndexModelTests
         var repository = new FakeFreebetRepository();
         var freebet = CreateFreebet("test-id", DateTime.Today.AddDays(7));
         repository.Freebets.Add(freebet);
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
         var tempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>());
         model.TempData = tempData;
 
@@ -82,7 +88,8 @@ public sealed class IndexModelTests
     public async Task OnPostDeleteAsync_WhenFreebetDoesNotExist_ReturnsNotFound()
     {
         var repository = new FakeFreebetRepository();
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         var result = await model.OnPostDeleteAsync("missing-id", "ExpiryDate", false, "All", null, null, 1, CancellationToken.None);
 
@@ -101,7 +108,8 @@ public sealed class IndexModelTests
             CreateFreebet("middle", new DateTime(2026, 10, 20), amount: 100m)
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Amount", false, "All", null, null, 1, CancellationToken.None);
 
@@ -122,7 +130,8 @@ public sealed class IndexModelTests
             CreateFreebet("middle", new DateTime(2026, 10, 20), amount: 100m)
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Amount", true, "All", null, null, 1, CancellationToken.None);
 
@@ -140,7 +149,8 @@ public sealed class IndexModelTests
             CreateFreebet("c", new DateTime(2026, 10, 20), account: "Unibet")
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Account", false, "All", null, null, 1, CancellationToken.None);
 
@@ -158,7 +168,8 @@ public sealed class IndexModelTests
             CreateFreebet("c", new DateTime(2026, 10, 20), account: "Unibet")
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Account", true, "All", null, null, 1, CancellationToken.None);
 
@@ -176,7 +187,8 @@ public sealed class IndexModelTests
             CreateFreebet("b", new DateTime(2026, 10, 20), player: "Bo")
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Player", false, "All", null, null, 1, CancellationToken.None);
 
@@ -194,7 +206,8 @@ public sealed class IndexModelTests
             CreateFreebet("b", new DateTime(2026, 10, 20), player: "Bo")
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Player", true, "All", null, null, 1, CancellationToken.None);
 
@@ -212,7 +225,8 @@ public sealed class IndexModelTests
             CreateFreebet("m", new DateTime(2026, 10, 20), terms: "Minimumsodds")
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Terms", false, "All", null, null, 1, CancellationToken.None);
 
@@ -230,7 +244,8 @@ public sealed class IndexModelTests
             CreateFreebet("m", new DateTime(2026, 10, 20), terms: "Minimumsodds")
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Terms", true, "All", null, null, 1, CancellationToken.None);
 
@@ -248,7 +263,8 @@ public sealed class IndexModelTests
             CreateFreebet("other-terms", new DateTime(2026, 10, 20), terms: "Minimumsodds")
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("Terms", false, "All", null, null, 1, CancellationToken.None);
 
@@ -265,7 +281,8 @@ public sealed class IndexModelTests
 
         repository.Freebets.AddRange([used, unused]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("IsUsed", false, "All", null, null, 1, CancellationToken.None);
 
@@ -282,7 +299,8 @@ public sealed class IndexModelTests
 
         repository.Freebets.AddRange([used, unused]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("IsUsed", true, "All", null, null, 1, CancellationToken.None);
 
@@ -299,7 +317,8 @@ public sealed class IndexModelTests
             CreateFreebet("early", new DateTime(2026, 10, 18))
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("UnknownColumn", false, "All", null, null, 1, CancellationToken.None);
 
@@ -317,7 +336,8 @@ public sealed class IndexModelTests
 
         repository.Freebets.AddRange([used, unused]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("ExpiryDate", false, "Unused", null, null, 1, CancellationToken.None);
 
@@ -335,7 +355,8 @@ public sealed class IndexModelTests
 
         repository.Freebets.AddRange([unused, used]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("ExpiryDate", false, "Used", null, null, 1, CancellationToken.None);
 
@@ -352,7 +373,8 @@ public sealed class IndexModelTests
             CreateFreebet("unused", new DateTime(2026, 10, 18))
         ]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("ExpiryDate", false, "UNUSED", null, null, 1, CancellationToken.None);
 
@@ -370,7 +392,8 @@ public sealed class IndexModelTests
 
         repository.Freebets.AddRange([unused, used]);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
 
         await model.OnGetAsync("ExpiryDate", false, "invalid", null, null, 1, CancellationToken.None);
 
@@ -381,7 +404,8 @@ public sealed class IndexModelTests
     [TestMethod]
     public void NextSortDescending_SameColumnAscending_ReturnsTrue()
     {
-        var model = new IndexModel(new FakeFreebetRepository());
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(new FakeFreebetRepository(), reminderPauseStore);
 
         Assert.IsTrue(model.NextSortDescending("ExpiryDate"));
     }
@@ -389,7 +413,8 @@ public sealed class IndexModelTests
     [TestMethod]
     public async Task NextSortDescending_SameColumnDescending_ReturnsFalse()
     {
-        var model = new IndexModel(new FakeFreebetRepository());
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(new FakeFreebetRepository(), reminderPauseStore);
 
         await model.OnGetAsync("Amount", true, "All", null, null, 1, CancellationToken.None);
 
@@ -399,7 +424,8 @@ public sealed class IndexModelTests
     [TestMethod]
     public async Task NextSortDescending_DifferentColumn_ReturnsFalse()
     {
-        var model = new IndexModel(new FakeFreebetRepository());
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(new FakeFreebetRepository(), reminderPauseStore);
 
         await model.OnGetAsync("Amount", true, "All", null, null, 1, CancellationToken.None);
 
@@ -409,7 +435,8 @@ public sealed class IndexModelTests
     [TestMethod]
     public async Task SortIndicator_ReturnsCorrectArrow()
     {
-        var model = new IndexModel(new FakeFreebetRepository());
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(new FakeFreebetRepository(), reminderPauseStore);
 
         await model.OnGetAsync("Amount", false, "All", null, null, 1, CancellationToken.None);
         Assert.AreEqual(" ▲", model.SortIndicator("Amount"));
@@ -426,7 +453,8 @@ public sealed class IndexModelTests
         var freebet = CreateFreebet("test-id", new DateTime(2026, 10, 25));
         repository.Freebets.Add(freebet);
 
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
         var result = await model.OnPostMarkAsUsedAsync("test-id", "Amount", true, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsInstanceOfType<RedirectToPageResult>(result);
@@ -444,7 +472,8 @@ public sealed class IndexModelTests
     public async Task OnPostMarkAsUsedAsync_WhenFreebetDoesNotExist_ReturnsNotFound()
     {
         var repository = new FakeFreebetRepository();
-        var model = new IndexModel(repository);
+        var reminderPauseStore = new FakeReminderPauseStore();
+        var model = new IndexModel(repository, reminderPauseStore);
         var result = await model.OnPostMarkAsUsedAsync("missing-id", "ExpiryDate", false, "All", null, null, 1, CancellationToken.None);
 
         Assert.IsInstanceOfType<NotFoundResult>(result);

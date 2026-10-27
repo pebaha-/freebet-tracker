@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace FreebetTracker.Web.Pages.Freebets;
 
-public class IndexModel(IFreebetRepository repository) : PageModel
+public class IndexModel(IFreebetRepository repository, IReminderPauseStore reminderPauseStore) : PageModel
 {
     private const int PageSize = 10;
 
@@ -32,6 +32,15 @@ public class IndexModel(IFreebetRepository repository) : PageModel
     public int FilteredCount { get; private set; }
 
     public int TotalCount { get; private set; }
+
+    public DateTimeOffset? PausedUntilUtc { get; private set; }
+
+    public bool IsReminderPauseActive =>
+        PausedUntilUtc is not null &&
+        PausedUntilUtc > DateTimeOffset.UtcNow;
+
+    [BindProperty]
+    public string? ResumeDate { get; set; }
 
     [TempData]
     public string? SuccessMessage { get; set; }
@@ -61,6 +70,8 @@ public class IndexModel(IFreebetRepository repository) : PageModel
         int pageNumber = 1,
         CancellationToken cancellationToken = default)
     {
+        PausedUntilUtc = await reminderPauseStore.GetPausedUntilAsync(cancellationToken);
+
         StatusFilter = statusFilter?.ToLowerInvariant() switch
         {
             "all" => "All",
@@ -252,5 +263,37 @@ public class IndexModel(IFreebetRepository repository) : PageModel
             playerFilter,
             pageNumber
         });
+    }
+
+    public async Task<IActionResult> OnPostSetReminderPauseAsync(CancellationToken cancellationToken = default)
+    {
+        if (!DateOnly.TryParseExact(ResumeDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var resumeDate))
+        {
+            TempData["ErrorMessage"] = "Vælg en gyldig genoptagelsesdato.";
+            return RedirectToPage("./Index");
+        }
+
+        var resumeTimestampUtc = new DateTimeOffset(resumeDate.Year, resumeDate.Month, resumeDate.Day, 0, 0, 0, TimeSpan.Zero);
+
+        if (resumeTimestampUtc <= DateTimeOffset.UtcNow)
+        {
+            TempData["ErrorMessage"] = "Genoptagelsesdatoen skal være i fremtiden.";
+            return RedirectToPage("./Index");
+        }
+
+        await reminderPauseStore.SetPausedUntilAsync(resumeTimestampUtc, cancellationToken);
+
+        TempData["SuccessMessage"] = $"Påmindelserne genoptages den {resumeDate:dd-MM-yyyy}.";
+
+        return RedirectToPage("./Index");
+    }
+
+    public async Task<IActionResult> OnPostClearReminderPauseAsync(CancellationToken cancellationToken = default)
+    {
+        await reminderPauseStore.ClearPauseAsync(cancellationToken);
+
+        TempData["SuccessMessage"] = "Pausen for påmindelser er fjernet.";
+
+        return RedirectToPage("./Index");
     }
 }

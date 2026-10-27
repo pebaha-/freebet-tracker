@@ -28,6 +28,83 @@
         </div>
     </div>
 
+    @if (!string.IsNullOrWhiteSpace(TempData["ErrorMessage"] as string))
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="card mb-4">
+        <button class="btn text-start p-3"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#reminderSettings"
+                aria-expanded="false"
+                aria-controls="reminderSettings">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-semibold">Påmindelser</span>
+
+                @if (Model.IsReminderPauseActive)
+                {
+                    <span class="text-body-secondary small">
+                        På pause indtil
+                        @Model.PausedUntilUtc!.Value.UtcDateTime.ToString("dd-MM-yyyy")
+                    </span>
+                    <span class="badge text-bg-warning ms-auto">
+                        På pause
+                    </span>
+                }
+                else
+                {
+                    <span class="text-body-secondary small">
+                        Påmindelserne er aktive
+                    </span>
+                }
+
+                <span class="ms-auto">
+                    <span class="collapse-chevron">⌄</span>
+                </span>
+            </div>
+        </button>
+
+        <div class="collapse" id="reminderSettings">
+            <div class="card-body border-top pt-3">
+                <form method="post"
+                      asp-page-handler="SetReminderPause"
+                      class="d-flex flex-column flex-sm-row align-items-sm-end gap-2">
+                    <div>
+                        <label for="resumeDate" class="form-label">
+                            Genoptag påmindelser fra
+                        </label>
+                        <input type="date"
+                               id="resumeDate"
+                               name="ResumeDate"
+                               class="form-control"
+                               value="@(Model.PausedUntilUtc?.UtcDateTime.ToString("yyyy-MM-dd"))"
+                               required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Gem dato
+                    </button>
+                </form>
+
+                @if (Model.PausedUntilUtc is not null)
+                {
+                    <form method="post"
+                          asp-page-handler="ClearReminderPause"
+                          class="mt-2">
+                        <button type="submit"
+                                class="btn btn-outline-secondary btn-sm">
+                            Fjern pause
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
     <a asp-page="./Create" class="btn btn-primary mb-3">
         Nyt freebet
     </a>

@@ -39,6 +39,7 @@ public sealed class FreebetReminderServiceIntegrationTests
         var tableClient = new TableClient(connectionString, "Freebets");
         var memoryCache = new MemoryCache(new MemoryCacheOptions());
         var repository = new FreebetTableRepository(tableClient, repoLogger, memoryCache);
+        var pauseStore = new TableReminderPauseStore(tableClient);
 
         // email sender
         var emailSender = new GmailEmailSender(configuration);
@@ -51,7 +52,7 @@ public sealed class FreebetReminderServiceIntegrationTests
 
         // create service logger and service
         var logger = loggerFactory.CreateLogger<FreebetReminderService>();
-        var service = new FreebetReminderService(repository, emailSender, options, logger);
+        var service = new FreebetReminderService(repository, emailSender, options, logger, pauseStore);
 
         await service.SendReminderAsync();
     }

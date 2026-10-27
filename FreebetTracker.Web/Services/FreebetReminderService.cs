@@ -5,7 +5,12 @@ using System.Net;
 
 namespace FreebetTracker.Web.Services;
 
-public sealed class FreebetReminderService(IFreebetRepository repository, IEmailSender emailSender, IOptions<FreebetReminderOptions> options, ILogger<FreebetReminderService> logger) : IFreebetReminderService
+public sealed class FreebetReminderService(
+    IFreebetRepository repository,
+    IEmailSender emailSender,
+    IOptions<FreebetReminderOptions> options,
+    ILogger<FreebetReminderService> logger,
+    IReminderPauseStore pauseStore) : IFreebetReminderService
 {
     public async Task SendReminderAsync(CancellationToken cancellationToken = default)
     {
@@ -16,6 +21,17 @@ public sealed class FreebetReminderService(IFreebetRepository repository, IEmail
         logger.LogInformation("Fetched {FreebetCount} freebets from the repository.", freebets.Count);
 
         var selected = FreebetService.SelectForReminder(freebets);
+
+        var pausedUntil = await pauseStore.GetPausedUntilAsync(cancellationToken);
+
+        if (pausedUntil is not null && pausedUntil > DateTimeOffset.UtcNow)
+        {
+            selected = selected
+                .Where(f => f.ExpiryDate <= pausedUntil.Value.LocalDateTime)
+                .ToList();
+
+            logger.LogInformation("Reminder pause active until {PausedUntil}. " + "{SelectedCount} freebets remain eligible for reminders.", pausedUntil, selected.Count);
+        }
 
         logger.LogInformation("Selected {SelectedCount} freebets for reminders.", selected.Count);
 

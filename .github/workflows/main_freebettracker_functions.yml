@@ -44,10 +44,21 @@ jobs:
       - name: Verify published Function package
         shell: bash
         run: |
+          echo "=== Publish output root ==="
+          ls -la ./publish
+
           echo "=== Published files ==="
           find ./publish -maxdepth 2 -type f -print | sort | head -200
 
           echo "=== Required files ==="
+          for item in .azurefunctions extensions.json functions.metadata host.json worker.config.json; do
+            if [ -e "./publish/$item" ]; then
+              echo "FOUND: $item"
+            else
+              echo "MISSING: $item"
+            fi
+          done
+
           test -d ./publish/.azurefunctions || {
             echo "ERROR: .azurefunctions is missing from publish output"
             exit 1
@@ -64,7 +75,6 @@ jobs:
           }
 
           echo "Function publish output contains the required files."
-
 
       - name: Upload deployment package
         uses: actions/upload-artifact@v7

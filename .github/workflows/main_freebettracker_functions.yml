@@ -32,6 +32,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore FreebetTracker.slnx
 
+      - name: Restore Functions project
+        run: dotnet restore FreebetTracker.Functions/FreebetTracker.Functions.csproj
+
       - name: Build solution
         run: dotnet build FreebetTracker.slnx --configuration Release --no-restore
 

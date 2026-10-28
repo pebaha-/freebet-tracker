@@ -70,27 +70,71 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D52D08BB80334184B8028A39F5270DE7 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DF31F64CE77F4677AA2D420287A5D3C2 }}
 
-      - name: Diagnose Function App
+      - name: Diagnose Function App configuration
         uses: azure/CLI@v2
         with:
           inlineScript: |
+            set -e
+
+            APP="freebet-tracker-reminder"
+            RG="FreebetTracker_RG"
+
             echo "=== Azure context ==="
             az account show \
               --query "{subscription:name, subscriptionId:id, tenantId:tenantId}" \
               --output json
 
+            echo "=== Function App resource ==="
+            az resource show \
+              --resource-group "$RG" \
+              --name "$APP" \
+              --resource-type "Microsoft.Web/sites" \
+              --query "{id:id, name:name, location:location, kind:kind, properties:properties}" \
+              --output json
+
             echo "=== Function App details ==="
             az functionapp show \
-              --name freebet-tracker-reminder \
-              --resource-group FreebetTracker_RG \
-              --query "{name:name, kind:kind, state:state, host:hostNames[0], serverFarmId:serverFarmId}" \
+              --name "$APP" \
+              --resource-group "$RG" \
+              --query "{name:name, kind:kind, state:state, hostNames:hostNames, sku:sku, serverFarmId:serverFarmId, functionAppConfig:functionAppConfig}" \
               --output json
+
+            echo "=== Function App configuration ==="
+            az functionapp config show \
+              --name "$APP" \
+              --resource-group "$RG" \
+              --output json
+
+            echo "=== Hosting plan ID ==="
+            PLAN_ID=$(az functionapp show \
+              --name "$APP" \
+              --resource-group "$RG" \
+              --query "serverFarmId" \
+              --output tsv)
+
+            echo "Plan ID: $PLAN_ID"
+
+            if [ -n "$PLAN_ID" ] && [ "$PLAN_ID" != "None" ]; then
+              echo "=== Hosting plan SKU ==="
+              az resource show \
+                --ids "$PLAN_ID" \
+                --query "{id:id, name:name, kind:kind, sku:sku, location:location, properties:properties}" \
+                --output json
+            else
+              echo "No serverFarmId returned by the CLI query."
+              echo "Checking Function App site configuration."
+              az resource show \
+                --resource-group "$RG" \
+                --name "$APP" \
+                --resource-type "Microsoft.Web/sites/config" \
+                --output json
+            fi
 
             echo "=== Relevant application settings ==="
             az functionapp config appsettings list \
-              --name freebet-tracker-reminder \
-              --resource-group FreebetTracker_RG \
-              --query "[?name=='WEBSITE_RUN_FROM_PACKAGE' || name=='FUNCTIONS_WORKER_RUNTIME' || name=='FUNCTIONS_EXTENSION_VERSION' || name=='SCM_DO_BUILD_DURING_DEPLOYMENT' || name=='ENABLE_ORYX_BUILD'].{name:name,value:value}" \
+              --name "$APP" \
+              --resource-group "$RG" \
+              --query "[?name=='WEBSITE_RUN_FROM_PACKAGE' || name=='FUNCTIONS_WORKER_RUNTIME' || name=='FUNCTIONS_EXTENSION_VERSION' || name=='SCM_DO_BUILD_DURING_DEPLOYMENT' || name=='ENABLE_ORYX_BUILD' || name=='DEPLOYMENT_STORAGE_CONNECTION_STRING'].{name:name,value:value}" \
               --output table
 
       - name: Deploy Azure Function App
@@ -98,3 +142,4 @@ jobs:
         with:
           app-name: 'freebet-tracker-reminder'
           package: ./publish
+          sku: flexconsumption

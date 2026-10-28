@@ -39,6 +39,17 @@ public class IndexModel(IFreebetRepository repository, IReminderPauseStore remin
         PausedUntilUtc is not null &&
         PausedUntilUtc > DateTimeOffset.UtcNow;
 
+    private static readonly TimeZoneInfo BusinessTimeZone =
+        TimeZoneInfo.FindSystemTimeZoneById(
+            OperatingSystem.IsWindows()
+                ? "Romance Standard Time"
+                : "Europe/Copenhagen");
+
+    public DateTime TomorrowInBusinessTimeZone =>
+        TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, BusinessTimeZone)
+            .Date
+            .AddDays(1);
+
     [BindProperty]
     public string? ResumeDate { get; set; }
 

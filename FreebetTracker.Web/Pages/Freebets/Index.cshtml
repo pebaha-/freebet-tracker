@@ -18,15 +18,6 @@
                     aria-label="Luk"></button>
         </div>
     }
-    <div class="d-flex justify-content-between
-        align-items-center mb-4">
-        <div>
-            <h1 class="h2 mb-1">Freebets</h1>
-            <p class="text-body-secondary mb-0">
-                Oversigt over registrerede freebets
-            </p>
-        </div>
-    </div>
 
     @if (!string.IsNullOrWhiteSpace(TempData["ErrorMessage"] as string))
     {
@@ -47,19 +38,13 @@
 
                 @if (Model.IsReminderPauseActive)
                 {
-                    <span class="text-body-secondary small">
-                        På pause indtil
-                        @Model.PausedUntilUtc!.Value.UtcDateTime.ToString("dd-MM-yyyy")
-                    </span>
-                    <span class="badge text-bg-warning ms-auto">
-                        På pause
+                    <span class="badge text-bg-warning">
+                        pause indtil @Model.PausedUntilUtc!.Value.UtcDateTime.ToString("dd-MM-yyyy")
                     </span>
                 }
                 else
                 {
-                    <span class="text-body-secondary small">
-                        Påmindelserne er aktive
-                    </span>
+                    <span class="badge text-bg-success">aktive</span>
                 }
 
                 <span class="ms-auto">
@@ -81,7 +66,7 @@
                                id="resumeDate"
                                name="ResumeDate"
                                class="form-control"
-                               value="@(Model.PausedUntilUtc?.UtcDateTime.ToString("yyyy-MM-dd"))"
+                               value="@((Model.PausedUntilUtc?.UtcDateTime.Date ?? Model.TomorrowInBusinessTimeZone).ToString("yyyy-MM-dd"))"
                                required />
                     </div>
 

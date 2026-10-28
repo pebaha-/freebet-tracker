@@ -44,6 +44,22 @@ jobs:
       - name: Publish Azure Function
         run: dotnet publish FreebetTracker.Functions/FreebetTracker.Functions.csproj --configuration Release --output ./publish
 
+      - name: Diagnose Functions metadata
+        shell: bash
+        run: |
+          echo "=== functions.metadata in repository ==="
+          find FreebetTracker.Functions -type f -name "functions.metadata" -print
+
+          echo "=== Azure Functions SDK generated files ==="
+          find FreebetTracker.Functions/obj -type f \
+            \( -name "azure_functions.g.csproj" \
+            -o -name "functions.metadata" \
+            -o -name "*.GeneratedMSBuildEditorConfig.editorconfig" \) -print
+
+          echo "=== Publish metadata ==="
+          find ./publish -maxdepth 2 -type f \
+            \( -name "functions.metadata" -o -name "function.json" \) -print
+
       - name: Verify published Function package
         shell: bash
         run: |

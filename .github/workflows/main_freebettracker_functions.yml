@@ -69,6 +69,13 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D52D08BB80334184B8028A39F5270DE7 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DF31F64CE77F4677AA2D420287A5D3C2 }}
 
+      - name: Show Azure context
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az account show --query "{subscription:name, subscriptionId:id, tenantId:tenantId}" --output json
+            az functionapp list --query "[].{name:name, resourceGroup:resourceGroup, location:location}" --output table
+
       - name: Deploy Azure Function App
         uses: Azure/functions-action@v1
         with:

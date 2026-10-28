@@ -47,18 +47,33 @@ jobs:
       - name: Diagnose Functions metadata
         shell: bash
         run: |
-          echo "=== functions.metadata in repository ==="
+          echo "=== SDK and runtime versions ==="
+          dotnet --info
+
+          echo "=== Metadata files under project ==="
           find FreebetTracker.Functions -type f -name "functions.metadata" -print
 
-          echo "=== Azure Functions SDK generated files ==="
-          find FreebetTracker.Functions/obj -type f \
-            \( -name "azure_functions.g.csproj" \
-            -o -name "functions.metadata" \
-            -o -name "*.GeneratedMSBuildEditorConfig.editorconfig" \) -print
+          echo "=== Metadata file contents ==="
+          for f in \
+            FreebetTracker.Functions/obj/Release/net10.0/functions.metadata \
+            FreebetTracker.Functions/obj/Release/net10.0/linux-x64/functions.metadata \
+            FreebetTracker.Functions/obj/Release/net10.0/linux-x64/PubTmp/Out/functions.metadata \
+            publish/functions.metadata
+          do
+            if [ -f "$f" ]; then
+              echo "--- $f ($(wc -c < "$f") bytes) ---"
+              cat "$f"
+            else
+              echo "MISSING: $f"
+            fi
+          done
 
-          echo "=== Publish metadata ==="
-          find ./publish -maxdepth 2 -type f \
-            \( -name "functions.metadata" -o -name "function.json" \) -print
+          echo "=== Publish command properties ==="
+          dotnet msbuild FreebetTracker.Functions/FreebetTracker.Functions.csproj \
+            -getProperty:TargetFramework \
+            -getProperty:RuntimeIdentifier \
+            -getProperty:PublishDir \
+            -getProperty:FunctionsEnableWorkerIndexing
 
       - name: Verify published Function package
         shell: bash

@@ -46,6 +46,7 @@ jobs:
         with:
           name: function-app
           path: ./publish
+          if-no-files-found: error
 
   deploy:
     runs-on: ubuntu-latest
@@ -69,23 +70,28 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D52D08BB80334184B8028A39F5270DE7 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DF31F64CE77F4677AA2D420287A5D3C2 }}
 
-      - name: Show Azure context
-        uses: azure/CLI@v2
-        with:
-          inlineScript: |
-            az account show --query "{subscription:name, subscriptionId:id, tenantId:tenantId}" --output json
-            az functionapp list --query "[].{name:name, resourceGroup:resourceGroup, location:location}" --output table
-
       - name: Diagnose Function App
         uses: azure/CLI@v2
         with:
           inlineScript: |
-            az account show --output table
-            az functionapp list --output json
+            echo "=== Azure context ==="
+            az account show \
+              --query "{subscription:name, subscriptionId:id, tenantId:tenantId}" \
+              --output json
+
+            echo "=== Function App details ==="
             az functionapp show \
               --name freebet-tracker-reminder \
               --resource-group FreebetTracker_RG \
+              --query "{name:name, kind:kind, state:state, host:hostNames[0], serverFarmId:serverFarmId}" \
               --output json
+
+            echo "=== Relevant application settings ==="
+            az functionapp config appsettings list \
+              --name freebet-tracker-reminder \
+              --resource-group FreebetTracker_RG \
+              --query "[?name=='WEBSITE_RUN_FROM_PACKAGE' || name=='FUNCTIONS_WORKER_RUNTIME' || name=='FUNCTIONS_EXTENSION_VERSION' || name=='SCM_DO_BUILD_DURING_DEPLOYMENT' || name=='ENABLE_ORYX_BUILD'].{name:name,value:value}" \
+              --output table
 
       - name: Deploy Azure Function App
         uses: Azure/functions-action@v1

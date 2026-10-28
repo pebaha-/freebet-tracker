@@ -41,6 +41,31 @@ jobs:
       - name: Publish Azure Function
         run: dotnet publish FreebetTracker.Functions/FreebetTracker.Functions.csproj --configuration Release --output ./publish
 
+      - name: Verify published Function package
+        shell: bash
+        run: |
+          echo "=== Published files ==="
+          find ./publish -maxdepth 2 -type f -print | sort | head -200
+
+          echo "=== Required files ==="
+          test -d ./publish/.azurefunctions || {
+            echo "ERROR: .azurefunctions is missing from publish output"
+            exit 1
+          }
+
+          test -f ./publish/host.json || {
+            echo "ERROR: host.json is missing from publish output"
+            exit 1
+          }
+
+          test -f ./publish/functions.metadata || {
+            echo "ERROR: functions.metadata is missing from publish output"
+            exit 1
+          }
+
+          echo "Function publish output contains the required files."
+
+
       - name: Upload deployment package
         uses: actions/upload-artifact@v7
         with:

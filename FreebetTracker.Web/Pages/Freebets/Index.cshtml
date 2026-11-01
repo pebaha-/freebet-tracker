@@ -117,7 +117,7 @@
                                asp-route-accountFilter="@Model.AccountFilter"
                                asp-route-playerFilter="@Model.PlayerFilter"
                                class="text-decoration-none text-reset">
-                                Konto @Model.SortIndicator("Account")
+                                @Model.SortIndicator("Account")
                             </a>
 
                             <form method="get" class="m-0">
@@ -156,7 +156,7 @@
                                asp-route-accountFilter="@Model.AccountFilter"
                                asp-route-playerFilter="@Model.PlayerFilter"
                                class="text-decoration-none text-reset">
-                                Spiller @Model.SortIndicator("Player")
+                                @Model.SortIndicator("Player")
                             </a>
 
                             <form method="get" class="m-0">
@@ -228,7 +228,7 @@
                                asp-route-accountFilter="@Model.AccountFilter"
                                asp-route-playerFilter="@Model.PlayerFilter"
                                class="text-decoration-none text-reset">
-                                Status @Model.SortIndicator("IsUsed")
+                                @Model.SortIndicator("IsUsed")
                             </a>
 
                             <form method="get" class="m-0">

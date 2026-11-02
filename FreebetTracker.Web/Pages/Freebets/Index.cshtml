@@ -326,7 +326,13 @@
             </tbody>
         </table>
     </div>
-    @if (Model.TotalPages > 1)
+    @if (Model.Freebets.Count == 0)
+    {
+        <div class="alert alert-info text-center" role="alert">
+            Ingen freebets fundet
+        </div>
+    }
+    else
     {
         <nav aria-label="Sidenavigation" class="mt-3">
             <div class="d-flex flex-column flex-sm-row
@@ -386,7 +392,6 @@
             </div>
         </nav>
     }
-
 </div>
 
 <div class="modal fade" id="deleteModal" tabindex="-1"

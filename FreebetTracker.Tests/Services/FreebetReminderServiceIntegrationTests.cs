@@ -1,10 +1,13 @@
 ﻿using Azure.Data.Tables;
 using FreebetTracker.Web.Data;
 using FreebetTracker.Web.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace FreebetTracker.Tests.Services;
 
@@ -40,6 +43,8 @@ public sealed class FreebetReminderServiceIntegrationTests
         var memoryCache = new MemoryCache(new MemoryCacheOptions());
         var repository = new FreebetTableRepository(tableClient, repoLogger, memoryCache);
         var pauseStore = new TableReminderPauseStore(tableClient);
+        var environment = new Mock<IWebHostEnvironment>();
+        environment.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
         // email sender
         var emailSender = new GmailEmailSender(configuration);
@@ -52,7 +57,7 @@ public sealed class FreebetReminderServiceIntegrationTests
 
         // create service logger and service
         var logger = loggerFactory.CreateLogger<FreebetReminderService>();
-        var service = new FreebetReminderService(repository, emailSender, options, logger, pauseStore);
+        var service = new FreebetReminderService(repository, emailSender, options, logger, pauseStore, environment.Object);
 
         await service.SendReminderAsync();
     }

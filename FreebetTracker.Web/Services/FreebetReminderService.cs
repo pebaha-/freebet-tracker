@@ -10,7 +10,8 @@ public sealed class FreebetReminderService(
     IEmailSender emailSender,
     IOptions<FreebetReminderOptions> options,
     ILogger<FreebetReminderService> logger,
-    IReminderPauseStore pauseStore) : IFreebetReminderService
+    IReminderPauseStore pauseStore,
+    IWebHostEnvironment environment) : IFreebetReminderService
 {
     public async Task SendReminderAsync(CancellationToken cancellationToken = default)
     {
@@ -50,7 +51,8 @@ public sealed class FreebetReminderService(
         }
 
         var subject = "Freebet-påmindelser";
-        var body = BuildEmailBody(selected);
+        var websiteUrl = GetWebsiteUrl();
+        var body = BuildEmailBody(selected, websiteUrl);
 
         logger.LogInformation("Sending reminder email containing {SelectedCount} freebets.", selected.Count);
 
@@ -59,8 +61,49 @@ public sealed class FreebetReminderService(
         logger.LogInformation("Reminder email sent successfully.");
     }
 
+    private string? GetWebsiteUrl()
+    {
+        if (environment.IsDevelopment())
+        {
+            if (string.IsNullOrWhiteSpace(environment.ContentRootPath))
+            {
+                return "https://localhost:5001/Freebets";
+            }
 
-    private static string BuildEmailBody(IReadOnlyList<Freebet> freebets)
+            var launchSettingsPath = Path.Combine(environment.ContentRootPath, "Properties", "launchSettings.json");
+
+            if (File.Exists(launchSettingsPath))
+            {
+                using var document = System.Text.Json.JsonDocument.Parse(File.ReadAllText(launchSettingsPath));
+                var profiles = document.RootElement.GetProperty("profiles");
+
+                foreach (var profile in profiles.EnumerateObject())
+                {
+                    if (profile.Value.TryGetProperty("applicationUrl", out var applicationUrl))
+                    {
+                        var urls = applicationUrl.GetString();
+
+                        if (!string.IsNullOrWhiteSpace(urls))
+                        {
+                            var baseUrl = urls.Split(';')[0].TrimEnd('/');
+                            return $"{baseUrl}/Freebets";
+                        }
+                    }
+                }
+            }
+
+            return "https://localhost:5001/Freebets";
+        }
+
+        var hostname = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
+
+        return !string.IsNullOrWhiteSpace(hostname)
+            ? $"https://{hostname}/Freebets"
+            : null;
+    }
+    private static string BuildEmailBody(
+        IReadOnlyList<Freebet> freebets,
+        string? websiteUrl)
     {
         var culture = CultureInfo.GetCultureInfo("da-DK");
         var html = new System.Text.StringBuilder();
@@ -104,6 +147,21 @@ public sealed class FreebetReminderService(
         html.Append("""
                 </tbody>
             </table>
+        """);
+
+        if (!string.IsNullOrWhiteSpace(websiteUrl))
+        {
+            html.Append($"""
+                <p style="margin-top: 20px;">
+                    <a href="{WebUtility.HtmlEncode(websiteUrl)}"
+                       style="color: #0d6efd; text-decoration: none;">
+                        Se all freebets her
+                    </a>
+                </p>
+                """);
+        }
+
+        html.Append("""
         </body>
         </html>
         """);

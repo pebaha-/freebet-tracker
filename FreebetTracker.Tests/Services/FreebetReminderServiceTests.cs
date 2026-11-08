@@ -1,6 +1,7 @@
-﻿
-using FreebetTracker.Web.Models;
+﻿using FreebetTracker.Web.Models;
 using FreebetTracker.Web.Services;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -38,6 +39,9 @@ public sealed class FreebetReminderServiceTests
             .Setup(x => x.GetPausedUntilAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(pausedUntil);
 
+        var environment = new Mock<IWebHostEnvironment>();
+        environment.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
         return new FreebetReminderService(
             repository.Object,
             emailSender.Object,
@@ -46,7 +50,8 @@ public sealed class FreebetReminderServiceTests
                 Recipient = "test@example.com"
             }),
             NullLogger<FreebetReminderService>.Instance,
-            pauseStore.Object);
+            pauseStore.Object,
+            environment.Object);
     }
 
     [TestMethod]
